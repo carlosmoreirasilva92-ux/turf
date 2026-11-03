@@ -4,5 +4,5 @@ import { LiveList } from "@/components/live-list";
 export const Route = createFileRoute("/")({ component: Home });
 
 function Home() {
-  return <LiveList title="O cartão do dia" />;
+  return <LiveList variant="hoje" />;
 }

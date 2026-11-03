@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AgentesRouteImport } from './routes/agentes'
+import { Route as AnalisesRouteImport } from './routes/analises'
 import { Route as ArquivoRouteImport } from './routes/arquivo'
 import { Route as CadernoRouteImport } from './routes/caderno'
 import { Route as CatalogoRouteImport } from './routes/catalogo'
@@ -41,6 +42,11 @@ const IndexRoute = IndexRouteImport.update({
 const AgentesRoute = AgentesRouteImport.update({
   id: '/agentes',
   path: '/agentes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalisesRoute = AnalisesRouteImport.update({
+  id: '/analises',
+  path: '/analises',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArquivoRoute = ArquivoRouteImport.update({
@@ -152,6 +158,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/agentes': typeof AgentesRoute
+  '/analises': typeof AnalisesRoute
   '/arquivo': typeof ArquivoRouteWithChildren
   '/caderno': typeof CadernoRoute
   '/catalogo': typeof CatalogoRoute
@@ -177,6 +184,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/agentes': typeof AgentesRoute
+  '/analises': typeof AnalisesRoute
   '/arquivo': typeof ArquivoRouteWithChildren
   '/caderno': typeof CadernoRoute
   '/catalogo': typeof CatalogoRoute
@@ -202,6 +210,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/agentes': typeof AgentesRoute
+  '/analises': typeof AnalisesRoute
   '/arquivo': typeof ArquivoRouteWithChildren
   '/caderno': typeof CadernoRoute
   '/catalogo': typeof CatalogoRoute
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/agentes'
+    | '/analises'
     | '/arquivo'
     | '/caderno'
     | '/catalogo'
@@ -254,6 +264,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/agentes'
+    | '/analises'
     | '/arquivo'
     | '/caderno'
     | '/catalogo'
@@ -278,6 +289,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/agentes'
+    | '/analises'
     | '/arquivo'
     | '/caderno'
     | '/catalogo'
@@ -304,6 +316,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AgentesRoute: typeof AgentesRoute
+  AnalisesRoute: typeof AnalisesRoute
   ArquivoRoute: typeof ArquivoRouteWithChildren
   CadernoRoute: typeof CadernoRoute
   CatalogoRoute: typeof CatalogoRoute
@@ -338,6 +351,13 @@ declare module '@tanstack/react-router' {
       path: '/agentes'
       fullPath: '/agentes'
       preLoaderRoute: typeof AgentesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analises': {
+      id: '/analises'
+      path: '/analises'
+      fullPath: '/analises'
+      preLoaderRoute: typeof AnalisesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/arquivo': {
@@ -516,6 +536,7 @@ const LivroRouteWithChildren = LivroRoute._addFileChildren(LivroRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AgentesRoute: AgentesRoute,
+  AnalisesRoute: AnalisesRoute,
   ArquivoRoute: ArquivoRouteWithChildren,
   CadernoRoute: CadernoRoute,
   CatalogoRoute: CatalogoRoute,

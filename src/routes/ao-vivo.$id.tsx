@@ -85,50 +85,57 @@ function Ficha() {
     );
   }
   if (!race) return <p className="text-sm text-muted" role="status">A ler a ficha pública…</p>;
+  const priced = race.runners.filter((runner) => runner.decimal != null && runner.status === "RUNNER");
+  const leader = priced.slice().sort((a, b) => (a.decimal ?? 0) - (b.decimal ?? 0))[0];
 
   return (
     <div>
-      <p className="text-xs tracking-[0.16em] text-subtle uppercase">
-        {race.course} · {race.country} · {race.time ?? "hora não indicada"} · {stageLabel(race.stage)}
-      </p>
-      <h1 className="mt-1 font-display text-4xl tracking-tight">{race.name}</h1>
+      <p className="text-xs tracking-[0.16em] text-subtle uppercase">A ficha da corrida</p>
+      <div className="mt-3 flex items-start justify-between gap-3">
+        <p className="text-sm">{race.course} · {race.country}</p>
+        <p className="font-display text-4xl tabular">{race.time ?? "—"}</p>
+      </div>
+      <h1 className="mt-2 font-display text-5xl tracking-tight">{race.name}</h1>
       <p className="mt-2 text-sm text-muted">
-        {[race.distance, race.going || "Terreno não indicado", race.discipline ?? "Tipo não indicado no nome", race.handicap ? "Handicap declarado pela fonte" : "Sem marca de handicap"].join(" · ")}
+        {[race.distance, race.going || "Terreno não indicado", race.discipline ?? "Tipo não indicado", stageLabel(race.stage)].join(" · ")}
       </p>
-      <p className="mt-2 text-sm text-muted" role="status">
-        Preços como o cartão os mostrou às {formatDublin(race.receivedAt)} (Dublin). Não é uma casa e não é o SP. A forma está como a fonte a publicou.
+      <p className="mt-3 text-sm text-muted" role="status">
+        Preço do cartão às {formatDublin(race.receivedAt)}. Não é uma casa e não é o SP.
       </p>
+      {leader ? (
+        <section className="hero-card mt-5 px-5 py-5">
+          <p className="text-xs tracking-[0.14em] text-[#d7efe4] uppercase">Preço mais curto</p>
+          <h2 className="mt-2 font-display text-4xl">{leader.name}</h2>
+          <p className="text-sm text-muted">{[leader.jockey, leader.trainer].filter(Boolean).join(" · ")}</p>
+          <p className="mt-4 font-display text-4xl tabular">{leader.fractional}</p>
+          <p className="text-xs text-subtle">Forma publicada: {leader.form ?? "não indicada"}</p>
+        </section>
+      ) : null}
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link to="/" className="chip-glass inline-flex h-11 items-center rounded-full px-4 text-sm">
-          Cartão do dia
-        </Link>
-        <button type="button" className="chip-holo h-11 rounded-full px-4 text-sm" onClick={save}>
-          Guardar cópia no livro
-        </button>
-        <a className="chip-glass inline-flex h-11 items-center rounded-full px-4 text-sm" href="https://www.sportinglife.com/racing/racecards">
-          Fonte
-        </a>
+        <Link to="/corridas" className="chip-glass inline-flex h-11 items-center rounded-full px-4 text-sm">Programa</Link>
+        <button type="button" className="btn-mint" onClick={save}>Travar cópia no livro</button>
       </div>
       {note ? <p className="mt-3 text-sm text-muted" role="status">{note}</p> : null}
-      <ul className="mt-6 space-y-3">
+      <h2 className="mt-8 font-display text-3xl">Participantes</h2>
+      <ul className="mt-3 space-y-2">
         {race.runners.map((runner) => (
-          <li key={runner.id} className="glass px-4 py-3">
-            <h2 className="font-display text-xl">
-              {runner.cloth != null ? <span className="mr-2 text-subtle tabular">{runner.cloth}</span> : null}
-              {runner.name}
-            </h2>
-            <p className="text-sm text-muted">
-              {runner.jockey ?? "Jóquei não indicado"} · {runner.trainer ?? "Treinador não indicado"}
+          <li key={runner.id} className="panel grid grid-cols-[1fr_auto] gap-3 px-4 py-3">
+            <div>
+              <p className="font-medium">
+                {runner.cloth != null ? <span className="mr-2 text-subtle tabular">{runner.cloth}</span> : null}
+                {runner.name}
+              </p>
+              <p className="text-xs text-subtle">
+                {[runner.jockey, runner.trainer, runner.form, runner.weightLb != null ? `${runner.weightLb} lb` : null, runner.or != null ? `OR ${runner.or}` : null]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+              <p className="text-xs text-subtle">{runner.status === "NON_RUNNER" ? "Não parte" : runner.status === "RUNNER" ? "Parte" : runner.status}</p>
+            </div>
+            <p className="text-right">
+              <span className="block font-display text-2xl tabular">{runner.fractional ?? "—"}</span>
+              <span className="text-xs text-subtle">{runner.decimal != null ? "cartão" : "sem preço"}</span>
             </p>
-            <p className="mt-1 text-sm">
-              {runner.status === "RUNNER" ? "Parte" : runner.status === "NON_RUNNER" ? "Não parte" : runner.status}
-              {runner.position != null ? ` · lugar ${runner.position}` : ""}
-              {runner.fractional ? ` · ${runner.fractional}` : " · preço não indicado"}
-              {runner.decimal != null ? ` (${runner.decimal})` : ""}
-              {runner.weightLb != null ? ` · ${runner.weightLb} lb` : ""}
-              {runner.or != null ? ` · OR ${runner.or}` : ""}
-            </p>
-            <p className="text-xs text-subtle">Forma publicada: {runner.form ?? "não indicada"}</p>
           </li>
         ))}
       </ul>

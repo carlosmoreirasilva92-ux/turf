@@ -1,19 +1,91 @@
 import { Link } from "@tanstack/react-router";
+import { RefreshCw, Shirt } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Chip } from "@/components/racing-ui";
 import { liveBoard, liveDay } from "@/lib/racing/live-api";
-import { stageLabel, type LiveDay } from "@/lib/racing/live-card";
-import type { LiveBoard } from "@/lib/racing/live-source";
+import { stageLabel, type LiveDay, type LiveRaceSummary } from "@/lib/racing/live-card";
+import type { LiveBoard, LiveBoardRace } from "@/lib/racing/live-source";
 import { formatDublin } from "@/lib/racing/time";
 
 const SCOPES = [
-  { id: "IEGB", label: "Irlanda e Grã-Bretanha" },
-  { id: "IE", label: "IE" },
-  { id: "GB", label: "GB" },
-  { id: "", label: "Todos" },
+  { id: "IEGB", label: "Todas" },
+  { id: "IE", label: "Irlanda" },
+  { id: "GB", label: "Reino Unido" },
 ] as const;
 
-export function LiveList({ title }: { title: string }) {
+function pct(decimal: number | null) {
+  if (decimal == null || !(decimal > 1)) return null;
+  return (100 / decimal).toFixed(1).replace(".", ",");
+}
+
+function flag(country: string) {
+  if (country === "IE") return "Irlanda";
+  if (country === "GB") return "Reino Unido";
+  return country;
+}
+
+function dayLabel(date: string) {
+  const [year, month, day] = date.split("-").map(Number);
+  if (!year || !month || !day) return date;
+  return new Intl.DateTimeFormat("pt-PT", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(year, month - 1, day)));
+}
+
+function RaceCard({ race, shown }: { race: LiveRaceSummary; shown?: LiveBoardRace }) {
+  const implied = pct(shown?.shownDecimal ?? null);
+  return (
+    <li>
+      <article className="panel px-4 py-4">
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-sm">
+            <span className="font-medium">{race.course}</span>
+            <span className="text-subtle"> · {flag(race.country)}</span>
+          </p>
+          <p className="font-display text-3xl tabular">{race.time ?? "—"}</p>
+        </div>
+        <p className="mt-1 text-sm text-muted">
+          {[race.discipline ?? "Tipo não indicado", race.distance, race.going, shown?.field != null ? `${shown.field} cavalos` : null]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+        <p className="mt-4 text-2xs tracking-[0.16em] text-subtle uppercase">Preço mais curto do cartão</p>
+        <div className="mt-2 flex items-center gap-3">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-white/6" aria-hidden="true">
+            <Shirt className="size-5 text-[#d7efe4]" />
+          </span>
+          <span>
+            <span className="block font-display text-2xl tracking-tight">{shown?.shownName ?? "A abrir o cavalo…"}</span>
+            <span className="block text-xs text-subtle">
+              {[shown?.shownJockey, shown?.shownTrainer].filter(Boolean).join(" · ") || stageLabel(race.stage)}
+            </span>
+          </span>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-3 border-t border-white/8 pt-3">
+          <p>
+            <span className="block text-xs text-subtle">No preço mostrado</span>
+            <span className="font-display text-3xl tabular">{implied ? `${implied}%` : "—"}</span>
+          </p>
+          <p>
+            <span className="block text-xs text-subtle">Preço do cartão</span>
+            <span className="font-display text-3xl tabular">{shown?.shownFractional ?? "—"}</span>
+            <span className="block text-xs text-subtle">Não é o SP</span>
+          </p>
+        </div>
+        <div className="mt-4 flex items-center justify-between">
+          <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-subtle">Cartão público</span>
+          <Link to="/ao-vivo/$id" params={{ id: race.id }} className="text-sm text-[#d7efe4]">
+            Analisar
+          </Link>
+        </div>
+      </article>
+    </li>
+  );
+}
+
+export function LiveList({ variant }: { variant: "hoje" | "lista" }) {
   const [day, setDay] = useState<LiveDay | null>(null);
   const [board, setBoard] = useState<LiveBoard | null>(null);
   const [error, setError] = useState("");
@@ -53,101 +125,124 @@ export function LiveList({ title }: { title: string }) {
 
   const prices = new Map(board?.races.map((race) => [race.id, race]) ?? []);
   const needle = q.trim().toLowerCase();
-  const meetings =
-    day?.meetings
-      .map((meeting) => ({
-        ...meeting,
-        races: meeting.races.filter((race) => {
-          const place = scope === "IEGB" ? race.country === "IE" || race.country === "GB" : scope === "" || race.country === scope;
-          if (!place) return false;
-          const shown = prices.get(race.id);
-          const blob = `${race.course} ${race.name} ${shown?.shownName ?? ""} ${shown?.shownJockey ?? ""} ${shown?.shownTrainer ?? ""}`.toLowerCase();
-          return !needle || blob.includes(needle);
-        }),
-      }))
-      .filter((meeting) => meeting.races.length > 0)
-      .sort((a, b) => (a.races[0]?.time ?? "").localeCompare(b.races[0]?.time ?? "")) ?? [];
+  const races = (day?.meetings ?? [])
+    .flatMap((meeting) => meeting.races.map((race) => ({ ...race, going: race.going || meeting.going })))
+    .filter((race) => {
+      const place = scope === "IE" ? race.country === "IE" : scope === "GB" ? race.country === "GB" : race.country === "IE" || race.country === "GB";
+      if (!place) return false;
+      const shown = prices.get(race.id);
+      const blob = `${race.course} ${race.name} ${shown?.shownName ?? ""} ${shown?.shownJockey ?? ""}`.toLowerCase();
+      return !needle || blob.includes(needle);
+    })
+    .sort((a, b) => (a.time ?? "").localeCompare(b.time ?? "") || a.course.localeCompare(b.course, "pt"));
+  const hero = races[0];
+  const heroShown = hero ? prices.get(hero.id) : undefined;
+  const courses = new Set(races.map((race) => race.course)).size;
 
   return (
     <div>
-      <p className="text-xs tracking-[0.18em] text-subtle uppercase">Cartão público · atualizado a cada minuto</p>
-      <h1 className="mt-1 font-display text-4xl tracking-tight">{title}</h1>
-      <p className="mt-2 text-sm text-muted">
-        Corridas reais de hoje, lidas do cartão que a Sporting Life publica sem login. O preço é o mais curto mostrado nesse cartão, não uma probabilidade nossa e não o SP.
-      </p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs tracking-[0.14em] text-subtle uppercase">
+          <span className="mr-2 inline-block size-1.5 rounded-full bg-[#7dcea0]" aria-hidden="true" />
+          {day ? dayLabel(day.date) : "Hoje · Dublin"}
+        </p>
+        <button type="button" className="inline-flex h-11 items-center gap-2 text-sm text-muted" onClick={() => load(false)}>
+          <RefreshCw className="size-4" aria-hidden="true" />
+          Atualizar
+        </button>
+      </div>
       <p className="mt-3 text-sm text-muted" role="status">
         {loading ? "A ler o cartão público…" : null}
         {!loading && error ? error : null}
-        {!loading && day ? `Lido às ${formatDublin(board?.receivedAt ?? day.receivedAt)} (Dublin).` : null}
-        {board ? "" : day ? " A abrir os cavalos da Irlanda e da Grã-Bretanha…" : ""}
+        {!loading && day ? `Lido às ${formatDublin(board?.receivedAt ?? day.receivedAt)}.` : null}
       </p>
-      <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="group" aria-label="País">
+
+      {variant === "hoje" ? (
+        <>
+          <h1 className="mt-6 font-display text-5xl tracking-tight">A próxima corrida real.</h1>
+          <p className="mt-2 text-sm text-muted">O preço mais curto do cartão público. Não é um modelo e não é o SP.</p>
+          {hero ? (
+            <section className="hero-card mt-6 px-5 py-6">
+              <p className="text-xs tracking-[0.16em] text-[#d7efe4] uppercase">{stageLabel(hero.stage)} · próxima corrida</p>
+              <h2 className="mt-3 font-display text-5xl leading-none tracking-tight">{heroShown?.shownName ?? hero.name}</h2>
+              <p className="mt-4 text-sm text-muted">
+                {hero.course} · {hero.time ?? "hora por indicar"} · {hero.distance ?? "distância por indicar"}
+              </p>
+              <div className="mt-6 grid grid-cols-3 gap-2">
+                <p>
+                  <span className="block text-xs text-subtle">No preço</span>
+                  <span className="font-display text-3xl tabular">{pct(heroShown?.shownDecimal ?? null) ? `${pct(heroShown?.shownDecimal ?? null)}%` : "—"}</span>
+                </p>
+                <p>
+                  <span className="block text-xs text-subtle">Preço</span>
+                  <span className="font-display text-3xl tabular">{heroShown?.shownFractional ?? "—"}</span>
+                </p>
+                <p>
+                  <span className="block text-xs text-subtle">Cavalos</span>
+                  <span className="font-display text-3xl tabular">{heroShown?.field ?? hero.runnersDeclared ?? "—"}</span>
+                </p>
+              </div>
+              <Link to="/ao-vivo/$id" params={{ id: hero.id }} className="btn-mint mt-6 w-full">
+                Analisar corrida
+              </Link>
+              <p className="mt-3 text-xs text-subtle">Cartão público · não calibrado · não é seleção</p>
+            </section>
+          ) : null}
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <p className="panel px-4 py-4">
+              <span className="block text-xs text-subtle">Corridas no programa</span>
+              <span className="font-display text-4xl tabular">{races.length || "—"}</span>
+            </p>
+            <p className="panel px-4 py-4">
+              <span className="block text-xs text-subtle">Hipódromos</span>
+              <span className="font-display text-4xl tabular">{courses || "—"}</span>
+            </p>
+          </div>
+        </>
+      ) : (
+        <>
+          <h1 className="mt-6 font-display text-5xl tracking-tight">Cada corrida, em detalhe.</h1>
+          <p className="mt-2 text-sm text-muted">O programa de hoje na Irlanda e no Reino Unido.</p>
+          <input
+            suppressHydrationWarning
+            value={q}
+            onChange={(event) => setQ(event.target.value)}
+            placeholder="Buscar hipódromo, cavalo ou jóquei"
+            aria-label="Buscar hipódromo, cavalo ou jóquei"
+            className="input-glass mt-5 h-12 w-full px-4 text-base"
+          />
+        </>
+      )}
+
+      <div className="mt-5 flex gap-2 overflow-x-auto" role="group" aria-label="País">
         {SCOPES.map((item) => (
-          <Chip key={item.id || "all"} active={scope === item.id} onClick={() => setScope(item.id)}>
+          <button
+            key={item.id}
+            type="button"
+            aria-pressed={scope === item.id}
+            className={scope === item.id ? "chip-holo h-11 shrink-0 rounded-full px-4 text-sm" : "chip-glass h-11 shrink-0 rounded-full px-4 text-sm"}
+            onClick={() => setScope(item.id)}
+          >
             {item.label}
-          </Chip>
+          </button>
         ))}
       </div>
-      <input
-        suppressHydrationWarning
-        value={q}
-        onChange={(event) => setQ(event.target.value)}
-        placeholder="Hipódromo, corrida ou cavalo"
-        aria-label="Procurar hipódromo, corrida ou cavalo"
-        className="input-glass mt-4 h-12 w-full px-4 text-base"
-      />
-      {!loading && day && meetings.length === 0 ? (
-        <p className="glass mt-6 px-4 py-8 text-center text-sm text-muted">A fonte não publicou corridas para este filtro.</p>
+
+      <div className="mt-6 flex items-end justify-between">
+        <h2 className="font-display text-3xl tracking-tight">{variant === "hoje" ? "Próximas largadas" : "Programa"}</h2>
+        <span className="text-sm text-subtle tabular">{races.length}</span>
+      </div>
+      {!loading && races.length === 0 ? <p className="panel mt-4 px-4 py-8 text-center text-sm text-muted">A fonte não publicou corridas para este filtro.</p> : null}
+      <ul className="mt-3 space-y-3">
+        {(variant === "hoje" ? races.slice(0, 6) : races).map((race) => (
+          <RaceCard key={race.id} race={race} shown={prices.get(race.id)} />
+        ))}
+      </ul>
+      {variant === "hoje" && races.length > 6 ? (
+        <Link to="/corridas" className="mt-4 inline-flex h-11 items-center text-sm text-[#d7efe4]">
+          Ver todas
+        </Link>
       ) : null}
-      <div className="mt-6 space-y-8">
-        {meetings.map((meeting) => (
-          <section key={meeting.id} aria-labelledby={`live-${meeting.id}`}>
-            <h2 id={`live-${meeting.id}`} className="text-xs font-medium tracking-[0.16em] text-accent uppercase">
-              {meeting.course}
-              <span className="ml-2 font-sans text-subtle">
-                {" · "}
-                {meeting.country}
-                {meeting.going ? ` · ${meeting.going}` : ""}
-                <span className="tabular"> · {meeting.races.length}</span>
-              </span>
-            </h2>
-            <ul className="mt-2 space-y-3">
-              {meeting.races.map((race) => {
-                const shown = prices.get(race.id);
-                return (
-                  <li key={race.id}>
-                    <Link to="/ao-vivo/$id" params={{ id: race.id }} className="glass block px-4 py-3">
-                      <p className="text-xs tracking-[0.14em] text-subtle uppercase">
-                        {race.time ?? "Hora não indicada"} · {race.country} · {stageLabel(race.stage)}
-                      </p>
-                      <p className="mt-1 font-display text-2xl tracking-tight">{race.name}</p>
-                      <p className="text-xs text-subtle">
-                        {[race.distance, race.discipline ?? "Tipo não indicado no nome", race.going || meeting.going, shown?.field != null ? `${shown.field} no cartão` : race.runnersDeclared != null ? `${race.runnersDeclared} no cartão` : null]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </p>
-                      <p className="mt-3 flex items-end justify-between gap-3">
-                        <span>
-                          <span className="block text-sm">{shown?.shownName ?? "A abrir os participantes…"}</span>
-                          <span className="block text-xs text-subtle">
-                            {shown?.shownName
-                              ? [shown.shownJockey, shown.shownTrainer].filter(Boolean).join(" · ") || "Ligações não indicadas"
-                              : "Sem exemplo no lugar"}
-                          </span>
-                        </span>
-                        <span className="text-right">
-                          <span className="block font-display text-2xl tabular">{shown?.shownFractional ?? "—"}</span>
-                          <span className="block text-2xs text-subtle">{shown?.shownDecimal != null ? shown.shownDecimal : "preço por indicar"}</span>
-                        </span>
-                      </p>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        ))}
-      </div>
     </div>
   );
 }
