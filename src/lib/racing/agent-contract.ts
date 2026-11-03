@@ -24,13 +24,13 @@ export function sourceDecision(): { active: string; sources: SourceRow[] } {
         decision: "Fonte em uso. É a única que responde sem conta. Não é uma casa e não é o SP.",
       },
       {
-        id: "conta-casa",
-        name: "Conta de casa",
-        aliases: ["Paddy Power", "TED Power"],
+        id: "paddy-power",
+        name: "Paddy Power",
+        aliases: [],
         active: false,
         needsAccount: true,
         decision:
-          "Não ligada. Este servidor não entra na conta, não pede palavra-passe e não a guarda. O agente pode consultar a casa à parte. Esses preços só entram na mesa por importação, marcados como informados pelo utilizador.",
+          "Casa que escolheste. Não está ligada. A Paddy Power não tem uma API pública de corridas. Este servidor não entra na conta e não guarda a palavra-passe. Sem uma fonte licenciada, a mesa usa o cartão público, que não é a Paddy Power e não é o SP.",
       },
       {
         id: "the-racing-api",
@@ -58,7 +58,7 @@ export const AGENT_RULES = [
   "Se o cavalo vencer, o retorno é aposta vezes o decimal. Se não vencer, perde-se a aposta.",
   "Não inventar odd, resultado, jóquei, lesão ou prazo de regresso.",
   "Não usar o caderno de demonstração para escolher um cavalo real.",
-  "Não tratar uma conta de casa como fonte ativa enquanto ela não estiver importada e marcada.",
+  "Não tratar a Paddy Power como fonte ativa. Ela não está ligada e os preços dela não estão nesta resposta.",
 ];
 
 export function bestOfDay(board: LiveBoard, stake = 10) {

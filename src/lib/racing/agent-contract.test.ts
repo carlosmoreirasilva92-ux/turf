@@ -6,10 +6,9 @@ import type { LiveBoard } from "./live-source.ts";
 test("a fonte ativa é o cartão público e a conta de casa fica de fora", () => {
   const decision = sourceDecision();
   assert.equal(decision.active, "cartao-publico");
-  const house = decision.sources.find((source) => source.id === "conta-casa");
+  const house = decision.sources.find((source) => source.id === "paddy-power");
+  assert.equal(house?.name, "Paddy Power");
   assert.equal(house?.active, false);
-  assert.equal(house?.aliases.includes("Paddy Power"), true);
-  assert.equal(house?.aliases.includes("TED Power"), true);
   assert.match(house?.decision ?? "", /palavra-passe/);
 });
 
