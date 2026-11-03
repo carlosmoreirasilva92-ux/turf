@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { DeskChat } from "@/components/desk-chat";
 import { AGENTS, readsFor, recordOf } from "@/lib/racing/agents";
 import { todayRaces } from "@/lib/racing/data";
 import { fmtPct } from "@/lib/racing/format";
@@ -25,6 +26,8 @@ function Agentes() {
           </Link>
         </p>
       ) : null}
+
+      <DeskChat raceId={focus?.id} />
 
       <div className="mt-6 space-y-3">
         {AGENTS.map((agent) => {

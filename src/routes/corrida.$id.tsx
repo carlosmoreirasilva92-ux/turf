@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Check, ChevronLeft, X } from "lucide-react";
 import { useState } from "react";
 import { AgentDesk } from "@/components/agent-desk";
+import { DeskChat } from "@/components/desk-chat";
 import { Chip } from "@/components/racing-ui";
 import { Silk } from "@/components/silk";
 import { disciplinePt, pickOf, raceById, type Horse } from "@/lib/racing/data";
@@ -88,6 +89,8 @@ function RacePage() {
                 : ""}
         </span>
       </div>
+
+      <DeskChat raceId={race.id} />
 
       <AgentDesk race={race} />
 
