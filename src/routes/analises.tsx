@@ -62,6 +62,7 @@ function Analises() {
           Abrir a ficha
         </Link>
       ) : null}
+      <Link to="/como" className="mt-4 inline-flex text-sm text-[#b5d8c8]">Como a mesa funciona</Link>
     </div>
   );
 }

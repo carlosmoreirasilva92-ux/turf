@@ -14,7 +14,7 @@ const NAV = [
 
 const MORE = [
   { to: "/livro", label: "Livro" },
-  { to: "/fontes", label: "Fontes de dados" },
+  { to: "/como", label: "Como funciona" },
   { to: "/cavalos", label: "Cavalos" },
   { to: "/arquivo", label: "Arquivo" },
   { to: "/catalogo", label: "Catálogo" },

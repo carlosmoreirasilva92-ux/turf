@@ -16,6 +16,7 @@ import { Route as ArquivoRouteImport } from './routes/arquivo'
 import { Route as CadernoRouteImport } from './routes/caderno'
 import { Route as CatalogoRouteImport } from './routes/catalogo'
 import { Route as CavalosRouteImport } from './routes/cavalos'
+import { Route as ComoRouteImport } from './routes/como'
 import { Route as CorridasRouteImport } from './routes/corridas'
 import { Route as FontesRouteImport } from './routes/fontes'
 import { Route as ImportarRouteImport } from './routes/importar'
@@ -67,6 +68,11 @@ const CatalogoRoute = CatalogoRouteImport.update({
 const CavalosRoute = CavalosRouteImport.update({
   id: '/cavalos',
   path: '/cavalos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComoRoute = ComoRouteImport.update({
+  id: '/como',
+  path: '/como',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CorridasRoute = CorridasRouteImport.update({
@@ -163,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/caderno': typeof CadernoRoute
   '/catalogo': typeof CatalogoRoute
   '/cavalos': typeof CavalosRoute
+  '/como': typeof ComoRoute
   '/corridas': typeof CorridasRoute
   '/fontes': typeof FontesRoute
   '/importar': typeof ImportarRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/caderno': typeof CadernoRoute
   '/catalogo': typeof CatalogoRoute
   '/cavalos': typeof CavalosRoute
+  '/como': typeof ComoRoute
   '/corridas': typeof CorridasRoute
   '/fontes': typeof FontesRoute
   '/importar': typeof ImportarRoute
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/caderno': typeof CadernoRoute
   '/catalogo': typeof CatalogoRoute
   '/cavalos': typeof CavalosRoute
+  '/como': typeof ComoRoute
   '/corridas': typeof CorridasRoute
   '/fontes': typeof FontesRoute
   '/importar': typeof ImportarRoute
@@ -243,6 +252,7 @@ export interface FileRouteTypes {
     | '/caderno'
     | '/catalogo'
     | '/cavalos'
+    | '/como'
     | '/corridas'
     | '/fontes'
     | '/importar'
@@ -269,6 +279,7 @@ export interface FileRouteTypes {
     | '/caderno'
     | '/catalogo'
     | '/cavalos'
+    | '/como'
     | '/corridas'
     | '/fontes'
     | '/importar'
@@ -294,6 +305,7 @@ export interface FileRouteTypes {
     | '/caderno'
     | '/catalogo'
     | '/cavalos'
+    | '/como'
     | '/corridas'
     | '/fontes'
     | '/importar'
@@ -321,6 +333,7 @@ export interface RootRouteChildren {
   CadernoRoute: typeof CadernoRoute
   CatalogoRoute: typeof CatalogoRoute
   CavalosRoute: typeof CavalosRoute
+  ComoRoute: typeof ComoRoute
   CorridasRoute: typeof CorridasRoute
   FontesRoute: typeof FontesRoute
   ImportarRoute: typeof ImportarRoute
@@ -386,6 +399,13 @@ declare module '@tanstack/react-router' {
       path: '/cavalos'
       fullPath: '/cavalos'
       preLoaderRoute: typeof CavalosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/como': {
+      id: '/como'
+      path: '/como'
+      fullPath: '/como'
+      preLoaderRoute: typeof ComoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/corridas': {
@@ -541,6 +561,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadernoRoute: CadernoRoute,
   CatalogoRoute: CatalogoRoute,
   CavalosRoute: CavalosRoute,
+  ComoRoute: ComoRoute,
   CorridasRoute: CorridasRoute,
   FontesRoute: FontesRoute,
   ImportarRoute: ImportarRoute,

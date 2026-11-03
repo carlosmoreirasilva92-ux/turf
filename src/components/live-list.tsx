@@ -201,7 +201,8 @@ export function LiveList({ variant }: { variant: "hoje" | "lista" }) {
             <p className="text-[10px] tracking-[0.16em] text-[#7c8a8b]">PARA APOSTAR HOJE</p>
             <h2 className="font-display text-[2rem] leading-none tracking-tight">Os melhores do dia</h2>
             <p className="mt-2 text-[13px] text-[#9aa6a5]">
-              Os 5 preços mais curtos que ainda não largaram. A percentagem é a conta desse preço. Se o cavalo vencer, o lucro é o da linha. Se não vencer, perdes a aposta.
+              Os 5 preços mais curtos que ainda não largaram. A percentagem é a conta desse preço. Se o cavalo vencer, o lucro é o da linha. Se não vencer, perdes a aposta.{" "}
+              <Link to="/como" className="text-[#b5d8c8]">Como a mesa funciona</Link>
             </p>
             <div className="mt-4 flex items-center gap-2">
               <label className="text-[12px] text-[#9aa6a5]" htmlFor="aposta">
