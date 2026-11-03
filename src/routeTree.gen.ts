@@ -23,6 +23,7 @@ import { Route as LivroRouteImport } from './routes/livro'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MaisRouteImport } from './routes/mais'
 import { Route as TreinadoresRouteImport } from './routes/treinadores'
+import { Route as AoVivoIdRouteImport } from './routes/ao-vivo.$id'
 import { Route as ArquivoIdRouteImport } from './routes/arquivo.$id'
 import { Route as CavaloIdRouteImport } from './routes/cavalo.$id'
 import { Route as CorridaIdRouteImport } from './routes/corrida.$id'
@@ -102,6 +103,11 @@ const TreinadoresRoute = TreinadoresRouteImport.update({
   path: '/treinadores',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AoVivoIdRoute = AoVivoIdRouteImport.update({
+  id: '/ao-vivo/$id',
+  path: '/ao-vivo/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArquivoIdRoute = ArquivoIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/mais': typeof MaisRoute
   '/treinadores': typeof TreinadoresRoute
+  '/ao-vivo/$id': typeof AoVivoIdRoute
   '/arquivo/$id': typeof ArquivoIdRoute
   '/cavalo/$id': typeof CavaloIdRoute
   '/corrida/$id': typeof CorridaIdRoute
@@ -181,6 +188,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/mais': typeof MaisRoute
   '/treinadores': typeof TreinadoresRoute
+  '/ao-vivo/$id': typeof AoVivoIdRoute
   '/arquivo/$id': typeof ArquivoIdRoute
   '/cavalo/$id': typeof CavaloIdRoute
   '/corrida/$id': typeof CorridaIdRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/mais': typeof MaisRoute
   '/treinadores': typeof TreinadoresRoute
+  '/ao-vivo/$id': typeof AoVivoIdRoute
   '/arquivo/$id': typeof ArquivoIdRoute
   '/cavalo/$id': typeof CavaloIdRoute
   '/corrida/$id': typeof CorridaIdRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/mais'
     | '/treinadores'
+    | '/ao-vivo/$id'
     | '/arquivo/$id'
     | '/cavalo/$id'
     | '/corrida/$id'
@@ -255,6 +265,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/mais'
     | '/treinadores'
+    | '/ao-vivo/$id'
     | '/arquivo/$id'
     | '/cavalo/$id'
     | '/corrida/$id'
@@ -279,6 +290,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/mais'
     | '/treinadores'
+    | '/ao-vivo/$id'
     | '/arquivo/$id'
     | '/cavalo/$id'
     | '/corrida/$id'
@@ -304,6 +316,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MaisRoute: typeof MaisRoute
   TreinadoresRoute: typeof TreinadoresRoute
+  AoVivoIdRoute: typeof AoVivoIdRoute
   CavaloIdRoute: typeof CavaloIdRoute
   CorridaIdRoute: typeof CorridaIdRoute
   JoqueiIdRoute: typeof JoqueiIdRoute
@@ -411,6 +424,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TreinadoresRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ao-vivo/$id': {
+      id: '/ao-vivo/$id'
+      path: '/ao-vivo/$id'
+      fullPath: '/ao-vivo/$id'
+      preLoaderRoute: typeof AoVivoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/arquivo/$id': {
       id: '/arquivo/$id'
       path: '/$id'
@@ -508,6 +528,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MaisRoute: MaisRoute,
   TreinadoresRoute: TreinadoresRoute,
+  AoVivoIdRoute: AoVivoIdRoute,
   CavaloIdRoute: CavaloIdRoute,
   CorridaIdRoute: CorridaIdRoute,
   JoqueiIdRoute: JoqueiIdRoute,

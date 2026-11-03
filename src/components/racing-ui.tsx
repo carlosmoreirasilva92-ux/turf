@@ -53,6 +53,7 @@ export function Chip({
   return (
     <button
       type="button"
+      aria-pressed={active}
       onClick={onClick}
       className={cn(
         "h-11 shrink-0 rounded-full px-3.5 text-sm transition-colors duration-150",

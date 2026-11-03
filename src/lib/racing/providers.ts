@@ -11,7 +11,7 @@ export function providerState(env: NodeJS.ProcessEnv = process.env): ProviderSta
       id: "none",
       connected: false,
       reason:
-        "Nenhuma fonte externa está ligada. Falta TURF_PROVIDER_URL e TURF_PROVIDER_KEY. O livro fica vazio até uma importação, que é marcada como informada pelo utilizador.",
+        "Nenhuma fonte licenciada está ligada. Falta TURF_PROVIDER_URL e TURF_PROVIDER_KEY. O cartão de hoje é só a leitura pública, sem SP oficial. O livro fica vazio até uma cópia ou importação, marcada como tua.",
     };
   }
   return {

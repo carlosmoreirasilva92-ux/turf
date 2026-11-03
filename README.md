@@ -2,7 +2,8 @@
 
 Caderno de corridas. Há dois modos, e não se misturam.
 
-- **Demonstração** (`/`, `/corridas`, `/caderno`, `/agentes`): cartão fictício ancorado a 2 de novembro de 2026, 14:30, Dublin. Cavalos, cotações e resultados são gerados. Não é uma casa de apostas e não entra no livro.
+- **Hoje** (`/`, `/ao-vivo/$id`): cartão do dia lido, sem chave, do JSON público da Sporting Life. Preço mostrado no momento da leitura, não é SP nem uma casa. Se a fonte falhar, a página fica vazia: a demonstração não a substitui. Uma cópia para o livro fica marcada como tua.
+- **Demonstração** (`/corridas`, `/caderno`, `/agentes`): cartão fictício ancorado a 2 de novembro de 2026, 14:30, Dublin. Cavalos, cotações e resultados são gerados. Não é uma casa de apostas e não entra no livro.
 - **Livro** (`/livro`, `/livro/$id`, `/importar`): começa vazio. Corridas, preços e previsões ficam na base, por utilizador. Uma importação JSON/CSV é marcada como informada pelo utilizador. A ficha tem URL própria, favorito e as cinco regras. Não há provedor ligado.
 
 O selo QUALIFICADA só existe depois de uma validação prospectiva. Contar corridas não calibra. O modelo deste repositório está experimental. As cinco perspectivas (forma, pista, mercado, estábulo, peso) são regras, não modelos separados.

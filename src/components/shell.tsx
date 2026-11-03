@@ -24,7 +24,7 @@ const MORE = [
 ] as const;
 
 function isActive(path: string, to: string) {
-  if (to === "/") return path === "/";
+  if (to === "/") return path === "/" || path.startsWith("/ao-vivo");
   if (to === "/corridas") return path.startsWith("/corridas") || path.startsWith("/corrida");
   if (to === "/cavalos") return path.startsWith("/cavalos") || path.startsWith("/cavalo");
   if (to === "/mais") return ["/mais", "/arquivo", "/joqueis", "/joquei", "/treinadores", "/treinador", "/fontes", "/catalogo", "/caderno", "/agentes"].some((item) => path === item || path.startsWith(`${item}/`));
@@ -36,14 +36,17 @@ export function Shell({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-root min-h-dvh text-fg">
-      <aside className="glass-nav fixed inset-y-3 left-3 z-20 hidden w-52 flex-col rounded-[1.75rem] px-4 py-6 md:flex">
-        <Link to="/" aria-label="TURF, hoje" className="flex items-center gap-2">
+      <a href="#conteudo" className="skip-link">
+        Saltar para o conteúdo
+      </a>
+      <aside className="glass-nav fixed inset-y-3 left-3 z-20 hidden w-52 flex-col overflow-y-auto rounded-[1.75rem] px-4 py-6 md:flex">
+        <Link to="/" aria-label="TURF, cartão de hoje" className="flex items-center gap-2">
           <span className="icon-circle size-9">
             <Mark className="size-6" />
           </span>
           <span className="font-display text-xl tracking-tight">TURF</span>
         </Link>
-        <nav className="mt-8 flex flex-col gap-1">
+        <nav className="mt-8 flex flex-col gap-1" aria-label="Principal">
           {NAV.map((item) => {
             const active = isActive(path, item.to);
             const Icon = item.icon;
@@ -51,26 +54,32 @@ export function Shell({ children }: { children: ReactNode }) {
               <Link
                 key={item.to}
                 to={item.to}
+                aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex h-11 items-center gap-3 rounded-[1.125rem] px-3 text-sm transition-colors duration-150",
                   active ? "chip-holo" : "text-muted hover:text-fg",
                 )}
               >
-                <Icon className="size-4" />
+                <Icon className="size-4" aria-hidden="true" />
                 {item.label}
               </Link>
             );
           })}
         </nav>
-        <nav className="mt-6 flex flex-col gap-1">
+        <nav className="mt-6 flex flex-col gap-1" aria-label="Mais secções">
           {MORE.map((item) => (
-            <Link key={item.to} to={item.to} className="flex h-9 items-center rounded-xl px-3 text-sm text-muted hover:text-fg">
+            <Link
+              key={item.to}
+              to={item.to}
+              aria-current={path === item.to || path.startsWith(`${item.to}/`) ? "page" : undefined}
+              className="flex h-11 items-center rounded-xl px-3 text-sm text-muted hover:text-fg"
+            >
               {item.label}
             </Link>
           ))}
         </nav>
         <p className="mt-auto px-1 text-xs leading-relaxed text-subtle">
-          Horas em Dublin. A demonstração não entra no arquivo. 18+.
+          Horas em Dublin. A demonstração não entra no cartão de hoje. 18+.
         </p>
         <div className="mt-3 px-1">
           <UserButton />
@@ -78,9 +87,9 @@ export function Shell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="md:pl-60">
-        <main className="mx-auto w-full max-w-3xl px-4 pt-5 pb-32 md:pt-8 md:pb-16">
+        <main id="conteudo" className="mx-auto w-full max-w-3xl px-4 pt-5 pb-32 md:pt-8 md:pb-16">
           <header className="mb-5 flex items-center justify-between md:hidden">
-            <Link to="/" className="flex items-center gap-2" aria-label="TURF, hoje">
+            <Link to="/" className="flex items-center gap-2" aria-label="TURF, cartão de hoje">
               <span className="icon-circle size-8">
                 <Mark className="size-5" />
               </span>
@@ -91,7 +100,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </header>
           {children}
           <p className="mt-6 text-xs leading-relaxed text-subtle">
-            A demonstração é fictícia e não migra para o livro.{" "}
+            O cartão de hoje vem da fonte pública. A demonstração é fictícia e não migra para o livro.{" "}
             <Link to="/livro" className="text-accent">
               Abrir o livro
             </Link>
@@ -100,7 +109,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </main>
       </div>
 
-      <nav className="glass-nav fixed inset-x-3 bottom-3 z-20 rounded-[1.75rem] pb-[env(safe-area-inset-bottom)] md:hidden">
+      <nav className="glass-nav fixed inset-x-3 bottom-3 z-20 rounded-[1.75rem] pb-[env(safe-area-inset-bottom)] md:hidden" aria-label="Principal">
         <ul className="grid grid-cols-5">
           {NAV.map((item) => {
             const active = isActive(path, item.to);
@@ -109,8 +118,9 @@ export function Shell({ children }: { children: ReactNode }) {
               <li key={item.to}>
                 <Link
                   to={item.to}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex h-16 flex-col items-center justify-center gap-0.5 text-[10px] leading-none",
+                    "flex min-h-16 flex-col items-center justify-center gap-0.5 px-1 py-2 text-xs leading-tight",
                     active ? "text-fg" : "text-muted",
                   )}
                 >
@@ -120,7 +130,7 @@ export function Shell({ children }: { children: ReactNode }) {
                       active && "icon-circle",
                     )}
                   >
-                    <Icon className="size-4" />
+                    <Icon className="size-4" aria-hidden="true" />
                   </span>
                   {item.label}
                 </Link>

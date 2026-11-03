@@ -50,8 +50,7 @@ function Corridas() {
     <div>
       <h1 className="font-display text-4xl tracking-tight">Corridas</h1>
       <p className="mt-2 text-sm text-muted">
-        O universo completo das leituras travadas, de 27 de setembro a 8 de novembro. Ganhe ou
-        perca o modelo, a corrida fica no caderno.
+        Demonstração fictícia, de 27 de setembro a 8 de novembro de 2026. Não é o cartão de hoje e não entra no livro.
       </p>
 
       <input
