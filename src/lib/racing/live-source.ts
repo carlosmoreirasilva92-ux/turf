@@ -1,15 +1,46 @@
 import { dublinYmd } from "./time.ts";
-import { parseLiveDay, parseLiveRace, type LiveDay, type LiveRace } from "./live-card.ts";
+import { parseLiveDay, parseLiveRace, shortestShown, type LiveDay, type LiveRace, type LiveRaceSummary } from "./live-card.ts";
 
 const LIST = "https://www.sportinglife.com/api/horse-racing/racing/racecards/";
 const RACE = "https://www.sportinglife.com/api/horse-racing/race/";
-const DAY_TTL = 180_000;
-const RACE_TTL = 90_000;
+const DAY_TTL = 45_000;
+const RACE_TTL = 45_000;
+const BOARD_TTL = 45_000;
 
 type Cache<T> = { at: number; value: T };
 
 const days = new Map<string, Cache<LiveDay>>();
 const races = new Map<string, Cache<LiveRace>>();
+const boards = new Map<string, Cache<LiveBoard>>();
+
+export type LiveBoardRace = LiveRaceSummary & {
+  shownName: string | null;
+  shownJockey: string | null;
+  shownTrainer: string | null;
+  shownFractional: string | null;
+  shownDecimal: number | null;
+  field: number | null;
+};
+
+export type LiveBoard = {
+  date: string;
+  receivedAt: string;
+  races: LiveBoardRace[];
+};
+
+async function mapPool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const out: R[] = new Array(items.length);
+  let cursor = 0;
+  async function worker() {
+    while (cursor < items.length) {
+      const index = cursor;
+      cursor += 1;
+      out[index] = await fn(items[index]!);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, () => worker()));
+  return out;
+}
 
 export type LiveResult<T> = { ok: true; value: T } | { ok: false; reason: string };
 
@@ -68,4 +99,30 @@ export async function fetchLiveRace(id: string, now = new Date()): Promise<LiveR
       reason: "A ficha pública não respondeu. Nada foi inventado.",
     };
   }
+}
+
+export async function fetchLiveBoard(now = new Date()): Promise<LiveResult<LiveBoard>> {
+  const date = dublinYmd(now);
+  const hit = boards.get(date);
+  if (hit && now.getTime() - hit.at < BOARD_TTL) return { ok: true, value: hit.value };
+  const day = await fetchLiveDay(now);
+  if (!day.ok) return day;
+  const listed = day.value.meetings.flatMap((meeting) => meeting.races).filter((race) => race.country === "IE" || race.country === "GB");
+  const detailed = await mapPool(listed, 4, async (race) => {
+    const fiche = await fetchLiveRace(race.id, now);
+    const shown = fiche.ok ? shortestShown(fiche.value.runners) : null;
+    return {
+      ...race,
+      going: race.going || (fiche.ok ? fiche.value.going : null),
+      shownName: shown?.name ?? null,
+      shownJockey: shown?.jockey ?? null,
+      shownTrainer: shown?.trainer ?? null,
+      shownFractional: shown?.fractional ?? null,
+      shownDecimal: shown?.decimal ?? null,
+      field: fiche.ok ? fiche.value.runners.length : race.runnersDeclared,
+    } satisfies LiveBoardRace;
+  });
+  const board: LiveBoard = { date, receivedAt: new Date().toISOString(), races: detailed };
+  boards.set(date, { at: Date.now(), value: board });
+  return { ok: true, value: board };
 }

@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
-import { fetchLiveDay, fetchLiveRace } from "./live-source.ts";
+import { fetchLiveBoard, fetchLiveDay, fetchLiveRace } from "./live-source.ts";
 
 export const liveDay = createServerFn({ method: "GET" }).handler(async () => fetchLiveDay());
+
+export const liveBoard = createServerFn({ method: "GET" }).handler(async () => fetchLiveBoard());
 
 export const liveRace = createServerFn({ method: "POST" })
   .validator((data: { id?: string }) => {

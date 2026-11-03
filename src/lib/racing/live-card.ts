@@ -281,3 +281,13 @@ export function parseLiveRace(value: unknown, receivedAt: string): { ok: true; r
     },
   };
 }
+
+export function shortestShown(runners: LiveRunner[]): LiveRunner | null {
+  const running = runners.filter((runner) => runner.status === "RUNNER");
+  const pool = running.length > 0 ? running : runners;
+  const priced = pool.filter((runner) => runner.decimal != null);
+  if (priced.length > 0) {
+    return priced.slice().sort((a, b) => (a.decimal ?? 0) - (b.decimal ?? 0))[0] ?? null;
+  }
+  return pool[0] ?? null;
+}
