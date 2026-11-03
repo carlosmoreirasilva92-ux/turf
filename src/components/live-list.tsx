@@ -130,6 +130,7 @@ export function LiveList({ variant }: { variant: "hoje" | "lista" }) {
   const [scope, setScope] = useState<(typeof SCOPES)[number]["id"]>("IEGB");
   const [q, setQ] = useState("");
   const [stakeText, setStakeText] = useState("10");
+  const [limit, setLimit] = useState(8);
 
   function load(first: boolean) {
     if (first) setLoading(true);
@@ -418,7 +419,7 @@ export function LiveList({ variant }: { variant: "hoje" | "lista" }) {
         <p className="mt-4 rounded-xl border border-white/8 px-4 py-8 text-center text-sm text-[#9aa6a5]">A fonte não publicou corridas para este filtro.</p>
       ) : null}
       <ul className="mt-3 space-y-3">
-        {(variant === "hoje" ? races.slice(0, 6) : races).map((race) => (
+        {(variant === "hoje" ? races.slice(0, 6) : races.slice(0, limit)).map((race) => (
           <RaceCard
             key={race.id}
             race={race}
@@ -428,6 +429,11 @@ export function LiveList({ variant }: { variant: "hoje" | "lista" }) {
           />
         ))}
       </ul>
+      {variant === "lista" && races.length > limit ? (
+        <button type="button" className="mt-3 h-11 w-full rounded-md border border-white/10 text-[13px] text-[#d7efe4]" onClick={() => setLimit((value) => value + 8)}>
+          Mostrar mais corridas
+        </button>
+      ) : null}
     </div>
   );
 }

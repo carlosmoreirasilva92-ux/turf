@@ -50,6 +50,8 @@ export type LiveGoingRun = {
 
 export type LiveRunner = {
   id: string;
+  horseId?: string | null;
+  age?: number | null;
   name: string;
   cloth: number | null;
   jockey: string | null;
@@ -128,6 +130,7 @@ export function stageLabel(stage: string): string {
     OFF: "A largar",
     RESULT: "Resultado publicado",
     WEIGHED_IN: "Pesagem confirmada",
+    WEIGHEDIN: "Pesagem confirmada",
     ABANDONED: "Abandonada",
     FINISHED: "Terminada",
   };
@@ -244,8 +247,11 @@ export function parseLiveRace(value: unknown, receivedAt: string): { ok: true; r
         position: priorPosition,
       });
     }
+    const horseRef = obj(horse.horse_reference)?.id;
     runners.push({
       id: String(rideId ?? horseName),
+      horseId: typeof horseRef === "number" || typeof horseRef === "string" ? String(horseRef) : null,
+      age: typeof horse.age === "number" ? horse.age : null,
       name: horseName,
       cloth: typeof ride.cloth_number === "number" ? ride.cloth_number : null,
       jockey: str(obj(ride.jockey)?.name),

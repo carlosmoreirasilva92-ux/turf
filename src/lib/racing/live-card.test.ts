@@ -78,6 +78,8 @@ test("a race fiche ignores a price that is not a fraction and future runs", () =
           betting: { current_odds: "SP" },
           horse: {
             name: "Alpha",
+            age: 6,
+            horse_reference: { id: 44 },
             formsummary: { display_text: "21" },
             previous_results: [
               { date: "2026-11-04", time: "15:00", course_name: "Naas", going: "Soft", position: 1 },
@@ -97,6 +99,8 @@ test("a race fiche ignores a price that is not a fraction and future runs", () =
   assert.equal(runner?.decimal, null);
   assert.equal(runner?.weightLb, 159);
   assert.equal(runner?.goingRuns.length, 1);
+  assert.equal(runner?.age, 6);
+  assert.equal(runner?.horseId, "44");
   assert.equal(runner?.position, null);
   assert.equal(JSON.stringify(parsed.race).includes("segredo"), false);
 });

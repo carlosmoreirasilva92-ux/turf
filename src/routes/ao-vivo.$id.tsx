@@ -214,8 +214,19 @@ function Ficha() {
                 </p>
                 <p className="truncate text-[11px] text-[#9aa6a5]">{[runner.jockey, runner.trainer].filter(Boolean).join(" · ") || "Equipa não indicada"}</p>
                 <p className="truncate text-[11px] text-[#7c8a8b]">
-                  {[runner.form, runner.or != null ? `OR ${runner.or}` : null, runner.weightLb != null ? kg(runner.weightLb) : null, runner.status === "NON_RUNNER" ? "Não parte" : null].filter(Boolean).join(" · ") || "Sem ficha extra"}
+                  {[runner.age != null ? `${runner.age} anos` : null, runner.form, runner.or != null ? `OR ${runner.or}` : null, runner.weightLb != null ? kg(runner.weightLb) : null, runner.status === "NON_RUNNER" ? "Não parte" : null].filter(Boolean).join(" · ") || "Sem ficha extra"}
                 </p>
+                {runner.goingRuns.length > 0 ? (
+                  <details className="mt-1">
+                    <summary className="cursor-pointer text-[11px] text-[#b5d8c8]">{runner.goingRuns.length} saídas anteriores no cartão</summary>
+                    {runner.goingRuns.slice(0, 6).map((run) => (
+                      <p key={run.offAt} className="text-[11px] text-[#7c8a8b]">
+                        {formatDublin(run.offAt)} · {run.course ?? "—"} · {run.distance ?? "—"} · {run.position != null ? `${run.position}º` : "posição por indicar"}
+                      </p>
+                    ))}
+                    <p className="text-[11px] text-[#7c8a8b]">Amostra do cartão. Não é a carreira completa.</p>
+                  </details>
+                ) : null}
               </div>
               <p className="font-display text-lg tabular">{chance(runner.decimal)}</p>
               <p className="text-right">
@@ -237,6 +248,11 @@ function Ficha() {
         </ul>
       </div>
       {race.runners.length === 0 ? <p className="mt-6 text-sm text-[#9aa6a5]">A fonte não publicou participantes.</p> : null}
+      {race.date ? (
+        <a className="mt-4 inline-flex text-[13px] text-[#b5d8c8]" href={`https://www.sportinglife.com/racing/racecards/${race.date}/racecard/${race.id}`} target="_blank" rel="noreferrer">
+          Consultar a publicação original
+        </a>
+      ) : null}
     </div>
   );
 }
