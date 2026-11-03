@@ -65,11 +65,10 @@ export function Chip({
 }
 
 function decisionLabel(race: Race) {
+  if (race.origin === "synthetic") return "Exemplo";
   if (race.status === "off") return "A correr";
   if (race.status === "awaiting") return "À espera";
-  if (race.status === "settled") {
-    return pickOf(race).position === 1 ? "Acertou" : "Liquidada";
-  }
+  if (race.status === "settled") return "Liquidada";
   return race.qualified ? "Qualificada" : "Sem aposta";
 }
 

@@ -58,6 +58,8 @@ export type Race = {
   gates: Gate[];
   segmentSample: number;
   value: number | null;
+  /** Synthetic cards never enter the durable book. */
+  origin: "synthetic";
 };
 
 export const EDGE_MIN = 0.05;
@@ -346,7 +348,7 @@ function statusFor(offMs: number, rng: () => number): RaceStatus {
 }
 
 type Roster = { trainer: string; silk: Silk; age: number; ability: number };
-type Built = Omit<Race, "gates" | "qualified" | "segmentSample" | "value" | "pickName"> & {
+type Built = Omit<Race, "gates" | "qualified" | "segmentSample" | "value" | "pickName" | "origin"> & {
   pickName: string;
 };
 
@@ -583,18 +585,24 @@ function buildUniverse(): Race[] {
     const value = pickHorse.odds != null ? pickHorse.modelP * pickHorse.odds - 1 : null;
     const gates: Gate[] = [
       {
+        code: "EXPERIMENTAL",
+        title: "Modelo experimental",
+        why: "Não há validação temporal separada. Contar corridas anteriores não calibra e não dá o selo QUALIFICADA.",
+        passed: false,
+      },
+      {
         code: "INSUFFICIENT_DATA",
-        title: "Calibração do segmento",
+        title: "Amostra não é calibração",
         why:
           race.discipline === "Bumper"
-            ? "National Hunt Flat fica de fora até haver amostra própria."
-            : `Precisa de pelo menos ${SAMPLE_MIN} corridas de ${disciplineLabel(race.discipline).toLowerCase()} já liquidadas antes desta. Agora: ${sample}.`,
-        passed: race.discipline !== "Bumper" && sample >= SAMPLE_MIN,
+            ? "National Hunt Flat fica de fora. A contagem, mesmo grande, não seria calibração."
+            : `Neste exemplo há ${sample} corridas fictícias de ${disciplineLabel(race.discipline).toLowerCase()} antes desta. Isso não valida o modelo.`,
+        passed: false,
       },
       {
         code: "SEM_COTACAO",
-        title: "Cotação real da Paddy Power",
-        why: "Decimal travado antes da partida. Sem cotação real: SEM APOSTA.",
+        title: "Cotação do exemplo",
+        why: "Decimal gerado neste cartão fictício, sem casa e sem hora de observação. Não é uma cotação de bookmaker.",
         passed: pickHorse.odds != null,
       },
       {
@@ -629,6 +637,7 @@ function buildUniverse(): Race[] {
       gates,
       segmentSample: sample,
       value,
+      origin: "synthetic",
     };
   });
 }
@@ -712,8 +721,8 @@ export function ledgerOf(list: Race[]): Ledger {
     }
     const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
     qualifiedNote =
-      top === "INSUFFICIENT_DATA"
-        ? "Nenhuma selecção QUALIFICADA registada (calibração INSUFFICIENT_DATA bloqueia qualificação)."
+      top === "EXPERIMENTAL" || top === "INSUFFICIENT_DATA"
+        ? "Nenhuma selecção QUALIFICADA. O modelo é experimental: a quantidade de corridas não é calibração."
         : "Nenhuma selecção QUALIFICADA registada. Os controlos recusaram o universo inteiro.";
   }
   return {

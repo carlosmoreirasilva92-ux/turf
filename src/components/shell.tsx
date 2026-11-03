@@ -1,7 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookOpen, LayoutList, SunMedium, Users } from "lucide-react";
+import { BookOpen, Library, LayoutList, SunMedium, Users } from "lucide-react";
 import type { ReactNode } from "react";
 import { Mark } from "@/components/mark";
+import { UserButton } from "@/lib/auth/gates";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -9,6 +10,7 @@ const NAV = [
   { to: "/corridas", label: "Corridas", icon: LayoutList },
   { to: "/agentes", label: "Agentes", icon: Users },
   { to: "/caderno", label: "Caderno", icon: BookOpen },
+  { to: "/livro", label: "Livro", icon: Library },
 ] as const;
 
 function isActive(path: string, to: string) {
@@ -51,6 +53,9 @@ export function Shell({ children }: { children: ReactNode }) {
         <p className="mt-auto px-1 text-xs leading-relaxed text-subtle">
           Horas em Dublin. Cartão de demonstração. 18+.
         </p>
+        <div className="mt-3 px-1">
+          <UserButton />
+        </div>
       </aside>
 
       <div className="md:pl-60">
@@ -62,18 +67,23 @@ export function Shell({ children }: { children: ReactNode }) {
               </span>
               <span className="font-display text-lg tracking-tight">TURF</span>
             </Link>
-            <span className="text-xs text-subtle">Dublin · 14:30</span>
+            <span className="text-xs text-subtle">Dublin</span>
+            <UserButton />
           </header>
           {children}
-          <p className="mt-10 text-xs leading-relaxed text-subtle">
-            18+. Leituras ilustrativas de um cartão de demonstração — não são cotações ao vivo nem
-            conselho de aposta.
+          {children}
+          <p className="mt-6 text-xs leading-relaxed text-subtle">
+            A demonstração é fictícia e não migra para o livro.{" "}
+            <Link to="/livro" className="text-accent">
+              Abrir o livro
+            </Link>
+            . 18+. Não é conselho de aposta.
           </p>
         </main>
       </div>
 
       <nav className="glass-nav fixed inset-x-3 bottom-3 z-20 rounded-[1.75rem] pb-[env(safe-area-inset-bottom)] md:hidden">
-        <ul className="grid grid-cols-4">
+        <ul className="grid grid-cols-5">
           {NAV.map((item) => {
             const active = isActive(path, item.to);
             const Icon = item.icon;
@@ -82,7 +92,7 @@ export function Shell({ children }: { children: ReactNode }) {
                 <Link
                   to={item.to}
                   className={cn(
-                    "flex h-16 flex-col items-center justify-center gap-0.5 text-xs",
+                    "flex h-16 flex-col items-center justify-center gap-0.5 text-[10px] leading-none",
                     active ? "text-fg" : "text-muted",
                   )}
                 >

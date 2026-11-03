@@ -29,7 +29,7 @@ function Corridas() {
         if (view === "settled" && race.status !== "settled") return false;
         if (view === "wait" && race.status === "settled") return false;
         if (!needle) return true;
-        const blob = `${race.course} ${race.name} ${race.horses.map((h) => h.name).join(" ")}`.toLowerCase();
+        const blob = `${race.course} ${race.name} ${race.horses.map((h) => `${h.name} ${h.jockey} ${h.trainer}`).join(" ")}`.toLowerCase();
         return blob.includes(needle);
       })
       .slice()

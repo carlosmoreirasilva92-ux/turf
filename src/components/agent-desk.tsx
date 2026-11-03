@@ -21,16 +21,14 @@ const STANCE = {
 
 export function AgentDesk({ race }: { race: Race }) {
   const reads = readsFor(race.id);
-  const aligned = reads.filter((r) => r.stance === "alinha").length;
 
   return (
     <section className="mt-8" aria-labelledby="mesa-agentes">
       <h2 id="mesa-agentes" className="text-xs tracking-[0.16em] text-subtle uppercase">
-        Mesa de agentes
+        Mesa de perspectivas
       </h2>
       <p className="mt-1 text-sm text-muted">
-        {aligned} de {reads.length} alinham com o modelo. Os outros nomeiam outro cavalo ou
-        abstêm-se. Não é conselho de aposta.
+        Regras sobre este exemplo. Sem hora de observação, histórico de pista ou estábulo, a regra abstém-se em vez de inventar um cavalo. Concordar não aumenta a probabilidade.
       </p>
       <ul className="mt-3 space-y-2">
         {reads.map((read) => (

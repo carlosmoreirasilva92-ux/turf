@@ -14,9 +14,9 @@ function Agentes() {
     <div>
       <h1 className="font-display text-4xl tracking-tight">Agentes</h1>
       <p className="mt-2 text-sm text-muted">
-        Cinco leituras do mesmo cartão travado. Cada uma usa só o que já estava no caderno antes da
-        partida. O acerto mede-se apenas em corridas liquidadas. Não substituem o modelo e não são
-        conselho de aposta (18+).
+        Cinco perspectivas por regras, versão actual, não cinco modelos. O acerto preservado só existe
+        em snapshots gravados antes da largada; recalcular o exemplo com regras novas não é histórico.
+        Não é conselho de aposta (18+).
       </p>
       {focus ? (
         <p className="mt-3 text-sm text-muted">

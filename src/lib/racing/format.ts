@@ -1,6 +1,8 @@
+import { zonedToUtc } from "./time.ts";
+
 export const DESK_YMD = "2026-11-02";
 export const DESK_TIME = "14:30";
-export const DESK_ISO = "2026-11-02T14:30:00+00:00";
+export const DESK_ISO = "2026-11-02T14:30:00.000Z";
 export const DESK_MS = Date.parse(DESK_ISO);
 
 export type Currency = "EUR" | "BRL" | "GBP" | "USD";
@@ -67,8 +69,6 @@ export function fmtShort(ymd: string) {
 }
 
 export function fmtDayLabel(ymd: string) {
-  if (ymd === DESK_YMD) return "Hoje · 2 de novembro";
-  if (ymd === "2026-11-03") return "Amanhã · 3 de novembro";
   const date = new Date(`${ymd}T12:00:00Z`);
   const raw = new Intl.DateTimeFormat("pt-PT", {
     weekday: "long",
@@ -89,10 +89,11 @@ export function weekday(ymd: string) {
   return new Date(`${ymd}T12:00:00Z`).getUTCDay();
 }
 
-/** Dublin wall-clock. IST until the last Sunday of October 2026, then GMT. */
+/** Dublin wall clock converted to UTC. Ambiguous or missing times are refused. */
 export function offIso(ymd: string, hhmm: string) {
-  const offset = ymd < "2026-10-25" ? "+01:00" : "+00:00";
-  return `${ymd}T${hhmm}:00${offset}`;
+  const zoned = zonedToUtc(ymd, hhmm);
+  if (!zoned.ok) throw new Error(`Hora de Dublin inválida (${zoned.reason}): ${ymd} ${hhmm}`);
+  return zoned.utc;
 }
 
 export function addMinutes(hhmm: string, mins: number) {

@@ -28,12 +28,10 @@ function Home() {
 
   return (
     <div>
-      <p className="text-xs tracking-[0.18em] text-subtle uppercase">Segunda-feira, 2 de novembro</p>
+      <p className="text-xs tracking-[0.18em] text-subtle uppercase">Demonstração ancorada a 2 de novembro de 2026</p>
       <h1 className="mt-1 font-display text-4xl tracking-tight text-fg">{title}</h1>
       <p className="mt-2 text-sm text-muted">
-        Cartão ancorado às 14:30, hora da Irlanda. Navan em obstáculos e Dundalk no plano. Uma
-        corrida só conta como QUALIFICADA se a probabilidade, a cotação real e todos os controlos
-        passam. Caso contrário: sem aposta.
+        Cartão fictício, com o relógio preso às 14:30 de Dublin. Não é o dia de hoje e não entra no livro. Nenhuma corrida recebe o selo QUALIFICADA.
       </p>
       {focus ? (
         <p className="mt-3 text-sm text-muted">

@@ -16,15 +16,14 @@ function Caderno() {
     <div>
       <h1 className="font-display text-4xl tracking-tight">Caderno</h1>
       <p className="mt-2 text-sm text-muted [&_strong]:font-medium">
-        Diário verificável. As métricas abaixo são calculadas <strong>apenas</strong> sobre previsões
-        pré-corrida travadas <strong>antes</strong> da partida e depois liquidadas com o resultado
-        real. O que ainda não tem amostra aparece como “—”, nunca como zero. Não é conselho de
-        aposta (18+).
+        Diário do exemplo. Os números abaixo descrevem o gerador, não previsões gravadas antes da
+        largada. O livro real, com a tua sessão, mostra — enquanto não houver snapshots. Não é
+        conselho de aposta (18+). O símbolo da moeda não é uma conversão cambial.
       </p>
 
       <Section
         title="Todas as previsões pré-corrida"
-        note="Cada corrida cuja leitura foi travada e marcada antes da partida. É o universo completo, ganhe ou perca o modelo."
+        note="Tamanho do baralho fictício. Não prova que alguma previsão tenha sido gravada antes da largada."
       >
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           <Kpi k="Previsões travadas" v={String(ledger.locked)} />
@@ -35,7 +34,7 @@ function Caderno() {
 
       <Section
         title="Selecções qualificadas"
-        note="Só conta como QUALIFICADA quando a probabilidade calibrada, a cotação real da Paddy Power e todos os controlos passam. Caso contrário: SEM APOSTA."
+        note="Só conta como QUALIFICADA com validação prospectiva. Contar corridas ou concordar regras não chega. Este exemplo não tem esse selo."
       >
         <div className="grid grid-cols-2 gap-2">
           <Kpi k="Qualificadas" v={String(ledger.qualified)} />
@@ -68,7 +67,7 @@ function Caderno() {
 
       <Section
         title="Retorno e CLV (só com cotação real)"
-        note="ROI e CLV só entram quando existia uma cotação REAL da Paddy Power travada no momento da previsão. O CLV compara essa cotação com o SP. Cotações indicativas do modelo nunca contam aqui."
+        note="Exercício sobre o baralho fictício, não sobre snapshots gravados. Não é uma cotação de bookmaker e não entra no livro."
       >
         <div className="grid grid-cols-2 gap-2">
           <Kpi k="Registos elegíveis" v={String(ledger.roiN)} />

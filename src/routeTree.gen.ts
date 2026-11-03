@@ -13,7 +13,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AgentesRouteImport } from './routes/agentes'
 import { Route as CadernoRouteImport } from './routes/caderno'
 import { Route as CorridasRouteImport } from './routes/corridas'
+import { Route as ImportarRouteImport } from './routes/importar'
+import { Route as LivroRouteImport } from './routes/livro'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as CorridaIdRouteImport } from './routes/corrida.$id'
+import { Route as LivroIndexRouteImport } from './routes/livro.index'
+import { Route as LivroIdRouteImport } from './routes/livro.$id'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -35,9 +41,39 @@ const CorridasRoute = CorridasRouteImport.update({
   path: '/corridas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImportarRoute = ImportarRouteImport.update({
+  id: '/importar',
+  path: '/importar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LivroRoute = LivroRouteImport.update({
+  id: '/livro',
+  path: '/livro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CorridaIdRoute = CorridaIdRouteImport.update({
   id: '/corrida/$id',
   path: '/corrida/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LivroIndexRoute = LivroIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LivroRoute,
+} as any)
+const LivroIdRoute = LivroIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => LivroRoute,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -46,14 +82,25 @@ export interface FileRoutesByFullPath {
   '/agentes': typeof AgentesRoute
   '/caderno': typeof CadernoRoute
   '/corridas': typeof CorridasRoute
+  '/importar': typeof ImportarRoute
+  '/livro': typeof LivroRouteWithChildren
+  '/login': typeof LoginRoute
   '/corrida/$id': typeof CorridaIdRoute
+  '/livro/$id': typeof LivroIdRoute
+  '/livro/': typeof LivroIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/agentes': typeof AgentesRoute
   '/caderno': typeof CadernoRoute
   '/corridas': typeof CorridasRoute
+  '/importar': typeof ImportarRoute
+  '/login': typeof LoginRoute
   '/corrida/$id': typeof CorridaIdRoute
+  '/livro/$id': typeof LivroIdRoute
+  '/livro': typeof LivroIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,14 +108,53 @@ export interface FileRoutesById {
   '/agentes': typeof AgentesRoute
   '/caderno': typeof CadernoRoute
   '/corridas': typeof CorridasRoute
+  '/importar': typeof ImportarRoute
+  '/livro': typeof LivroRouteWithChildren
+  '/login': typeof LoginRoute
   '/corrida/$id': typeof CorridaIdRoute
+  '/livro/$id': typeof LivroIdRoute
+  '/livro/': typeof LivroIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/agentes' | '/caderno' | '/corridas' | '/corrida/$id'
+  fullPaths:
+    | '/'
+    | '/agentes'
+    | '/caderno'
+    | '/corridas'
+    | '/importar'
+    | '/livro'
+    | '/login'
+    | '/corrida/$id'
+    | '/livro/$id'
+    | '/livro/'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/agentes' | '/caderno' | '/corridas' | '/corrida/$id'
-  id: '__root__' | '/' | '/agentes' | '/caderno' | '/corridas' | '/corrida/$id'
+  to:
+    | '/'
+    | '/agentes'
+    | '/caderno'
+    | '/corridas'
+    | '/importar'
+    | '/login'
+    | '/corrida/$id'
+    | '/livro/$id'
+    | '/livro'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/agentes'
+    | '/caderno'
+    | '/corridas'
+    | '/importar'
+    | '/livro'
+    | '/login'
+    | '/corrida/$id'
+    | '/livro/$id'
+    | '/livro/'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,7 +162,11 @@ export interface RootRouteChildren {
   AgentesRoute: typeof AgentesRoute
   CadernoRoute: typeof CadernoRoute
   CorridasRoute: typeof CorridasRoute
+  ImportarRoute: typeof ImportarRoute
+  LivroRoute: typeof LivroRouteWithChildren
+  LoginRoute: typeof LoginRoute
   CorridaIdRoute: typeof CorridaIdRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -109,6 +199,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CorridasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/importar': {
+      id: '/importar'
+      path: '/importar'
+      fullPath: '/importar'
+      preLoaderRoute: typeof ImportarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/livro': {
+      id: '/livro'
+      path: '/livro'
+      fullPath: '/livro'
+      preLoaderRoute: typeof LivroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/corrida/$id': {
       id: '/corrida/$id'
       path: '/corrida/$id'
@@ -116,15 +227,52 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CorridaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/livro/': {
+      id: '/livro/'
+      path: '/'
+      fullPath: '/livro/'
+      preLoaderRoute: typeof LivroIndexRouteImport
+      parentRoute: typeof LivroRoute
+    }
+    '/livro/$id': {
+      id: '/livro/$id'
+      path: '/$id'
+      fullPath: '/livro/$id'
+      preLoaderRoute: typeof LivroIdRouteImport
+      parentRoute: typeof LivroRoute
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface LivroRouteChildren {
+  LivroIdRoute: typeof LivroIdRoute
+  LivroIndexRoute: typeof LivroIndexRoute
+}
+
+const LivroRouteChildren: LivroRouteChildren = {
+  LivroIdRoute: LivroIdRoute,
+  LivroIndexRoute: LivroIndexRoute,
+}
+
+const LivroRouteWithChildren = LivroRoute._addFileChildren(LivroRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AgentesRoute: AgentesRoute,
   CadernoRoute: CadernoRoute,
   CorridasRoute: CorridasRoute,
+  ImportarRoute: ImportarRoute,
+  LivroRoute: LivroRouteWithChildren,
+  LoginRoute: LoginRoute,
   CorridaIdRoute: CorridaIdRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
