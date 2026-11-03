@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AgenteRouteImport } from './routes/agente'
 import { Route as AgentesRouteImport } from './routes/agentes'
 import { Route as AnalisesRouteImport } from './routes/analises'
 import { Route as ArquivoRouteImport } from './routes/arquivo'
@@ -33,11 +34,17 @@ import { Route as JoqueiIdRouteImport } from './routes/joquei.$id'
 import { Route as LivroIndexRouteImport } from './routes/livro.index'
 import { Route as LivroIdRouteImport } from './routes/livro.$id'
 import { Route as TreinadorIdRouteImport } from './routes/treinador.$id'
+import { Route as ApiAgenteSplatRouteImport } from './routes/api/agente/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgenteRoute = AgenteRouteImport.update({
+  id: '/agente',
+  path: '/agente',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentesRoute = AgentesRouteImport.update({
@@ -155,6 +162,11 @@ const TreinadorIdRoute = TreinadorIdRouteImport.update({
   path: '/treinador/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAgenteSplatRoute = ApiAgenteSplatRouteImport.update({
+  id: '/api/agente/$',
+  path: '/api/agente/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -163,6 +175,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/agente': typeof AgenteRoute
   '/agentes': typeof AgentesRoute
   '/analises': typeof AnalisesRoute
   '/arquivo': typeof ArquivoRouteWithChildren
@@ -186,10 +199,12 @@ export interface FileRoutesByFullPath {
   '/livro/$id': typeof LivroIdRoute
   '/treinador/$id': typeof TreinadorIdRoute
   '/livro/': typeof LivroIndexRoute
+  '/api/agente/$': typeof ApiAgenteSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agente': typeof AgenteRoute
   '/agentes': typeof AgentesRoute
   '/analises': typeof AnalisesRoute
   '/arquivo': typeof ArquivoRouteWithChildren
@@ -212,11 +227,13 @@ export interface FileRoutesByTo {
   '/livro/$id': typeof LivroIdRoute
   '/treinador/$id': typeof TreinadorIdRoute
   '/livro': typeof LivroIndexRoute
+  '/api/agente/$': typeof ApiAgenteSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/agente': typeof AgenteRoute
   '/agentes': typeof AgentesRoute
   '/analises': typeof AnalisesRoute
   '/arquivo': typeof ArquivoRouteWithChildren
@@ -240,12 +257,14 @@ export interface FileRoutesById {
   '/livro/$id': typeof LivroIdRoute
   '/treinador/$id': typeof TreinadorIdRoute
   '/livro/': typeof LivroIndexRoute
+  '/api/agente/$': typeof ApiAgenteSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/agente'
     | '/agentes'
     | '/analises'
     | '/arquivo'
@@ -269,10 +288,12 @@ export interface FileRouteTypes {
     | '/livro/$id'
     | '/treinador/$id'
     | '/livro/'
+    | '/api/agente/$'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/agente'
     | '/agentes'
     | '/analises'
     | '/arquivo'
@@ -295,10 +316,12 @@ export interface FileRouteTypes {
     | '/livro/$id'
     | '/treinador/$id'
     | '/livro'
+    | '/api/agente/$'
     | '/api/auth/$'
   id:
     | '__root__'
     | '/'
+    | '/agente'
     | '/agentes'
     | '/analises'
     | '/arquivo'
@@ -322,11 +345,13 @@ export interface FileRouteTypes {
     | '/livro/$id'
     | '/treinador/$id'
     | '/livro/'
+    | '/api/agente/$'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AgenteRoute: typeof AgenteRoute
   AgentesRoute: typeof AgentesRoute
   AnalisesRoute: typeof AnalisesRoute
   ArquivoRoute: typeof ArquivoRouteWithChildren
@@ -347,6 +372,7 @@ export interface RootRouteChildren {
   CorridaIdRoute: typeof CorridaIdRoute
   JoqueiIdRoute: typeof JoqueiIdRoute
   TreinadorIdRoute: typeof TreinadorIdRoute
+  ApiAgenteSplatRoute: typeof ApiAgenteSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -357,6 +383,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agente': {
+      id: '/agente'
+      path: '/agente'
+      fullPath: '/agente'
+      preLoaderRoute: typeof AgenteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agentes': {
@@ -520,6 +553,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TreinadorIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agente/$': {
+      id: '/api/agente/$'
+      path: '/api/agente/$'
+      fullPath: '/api/agente/$'
+      preLoaderRoute: typeof ApiAgenteSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -555,6 +595,7 @@ const LivroRouteWithChildren = LivroRoute._addFileChildren(LivroRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AgenteRoute: AgenteRoute,
   AgentesRoute: AgentesRoute,
   AnalisesRoute: AnalisesRoute,
   ArquivoRoute: ArquivoRouteWithChildren,
@@ -575,6 +616,7 @@ const rootRouteChildren: RootRouteChildren = {
   CorridaIdRoute: CorridaIdRoute,
   JoqueiIdRoute: JoqueiIdRoute,
   TreinadorIdRoute: TreinadorIdRoute,
+  ApiAgenteSplatRoute: ApiAgenteSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
