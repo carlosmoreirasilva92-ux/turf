@@ -197,6 +197,9 @@ export function LiveList({ variant }: { variant: "hoje" | "lista" }) {
           <p className="mt-3 text-[12px] text-[#7c8a8b]" role="status">
             {loading ? "A ler o cartão público…" : error || (day ? `Atualizado às ${dublinClock(new Date(board?.receivedAt ?? day.receivedAt))}.` : "")}
           </p>
+          <p className="mt-2 text-[12px] text-[#d8be87]">
+            Paddy Power não está ligada. Estes preços são o cartão público, não os da Paddy Power e não são o SP.
+          </p>
           <section className="mt-5" aria-label="Melhores cavalos do dia">
             <p className="text-[10px] tracking-[0.16em] text-[#7c8a8b]">PARA APOSTAR HOJE</p>
             <h2 className="font-display text-[2rem] leading-none tracking-tight">Os melhores do dia</h2>
