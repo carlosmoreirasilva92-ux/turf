@@ -1,0 +1,21 @@
+# origin
+value
+example
+# entities
+kind,key,name,country,sex,foaledYear
+horse,h1,Alpha,IE,,
+horse,h2,Beta,IE,,
+# courses
+key,name,country
+naas,Naas,IE
+# races
+key,courseKey,name,country,discipline,offAt,distanceM,going,surface,raceClass,weatherForecast,weatherObserved,status
+r1,naas,Maiden,IE,hurdle,2026-12-01T15:00:00.000Z,3200,Soft,,,,,result
+# runners
+raceKey,horseKey,jockeyKey,trainerKey,cloth,draw,carriedLb,bodyKg,officialRating,providerRating,ownMetric,started,position,deadHeat,finishStatus,comment
+r1,h1,,,,,154,480,,,,true,1,false,,
+r1,h2,,,,,150,,,,,true,2,false,,
+# prices
+raceKey,horseKey,book,market,decimal,kind,observedAt,currency
+r1,h1,casa,WIN,11,preoff,2026-12-01T14:00:00.000Z,EUR
+r1,h2,casa,WIN,3.5,preoff,2026-12-01T14:00:00.000Z,EUR

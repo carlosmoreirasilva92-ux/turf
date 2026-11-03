@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookOpen, Library, LayoutList, SunMedium, Users } from "lucide-react";
+import { Ellipsis, Library, LayoutList, Ribbon, SunMedium } from "lucide-react";
 import type { ReactNode } from "react";
 import { Mark } from "@/components/mark";
 import { UserButton } from "@/lib/auth/gates";
@@ -8,14 +8,26 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { to: "/", label: "Hoje", icon: SunMedium },
   { to: "/corridas", label: "Corridas", icon: LayoutList },
-  { to: "/agentes", label: "Agentes", icon: Users },
-  { to: "/caderno", label: "Caderno", icon: BookOpen },
+  { to: "/cavalos", label: "Cavalos", icon: Ribbon },
   { to: "/livro", label: "Livro", icon: Library },
+  { to: "/mais", label: "Mais", icon: Ellipsis },
+] as const;
+
+const MORE = [
+  { to: "/arquivo", label: "Arquivo" },
+  { to: "/joqueis", label: "Jóqueis" },
+  { to: "/treinadores", label: "Treinadores" },
+  { to: "/fontes", label: "Fontes" },
+  { to: "/catalogo", label: "Catálogo" },
+  { to: "/caderno", label: "Caderno" },
+  { to: "/agentes", label: "Agentes" },
 ] as const;
 
 function isActive(path: string, to: string) {
   if (to === "/") return path === "/";
   if (to === "/corridas") return path.startsWith("/corridas") || path.startsWith("/corrida");
+  if (to === "/cavalos") return path.startsWith("/cavalos") || path.startsWith("/cavalo");
+  if (to === "/mais") return ["/mais", "/arquivo", "/joqueis", "/joquei", "/treinadores", "/treinador", "/fontes", "/catalogo", "/caderno", "/agentes"].some((item) => path === item || path.startsWith(`${item}/`));
   return path.startsWith(to);
 }
 
@@ -50,8 +62,15 @@ export function Shell({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
+        <nav className="mt-6 flex flex-col gap-1">
+          {MORE.map((item) => (
+            <Link key={item.to} to={item.to} className="flex h-9 items-center rounded-xl px-3 text-sm text-muted hover:text-fg">
+              {item.label}
+            </Link>
+          ))}
+        </nav>
         <p className="mt-auto px-1 text-xs leading-relaxed text-subtle">
-          Horas em Dublin. Cartão de demonstração. 18+.
+          Horas em Dublin. A demonstração não entra no arquivo. 18+.
         </p>
         <div className="mt-3 px-1">
           <UserButton />
@@ -70,7 +89,6 @@ export function Shell({ children }: { children: ReactNode }) {
             <span className="text-xs text-subtle">Dublin</span>
             <UserButton />
           </header>
-          {children}
           {children}
           <p className="mt-6 text-xs leading-relaxed text-subtle">
             A demonstração é fictícia e não migra para o livro.{" "}

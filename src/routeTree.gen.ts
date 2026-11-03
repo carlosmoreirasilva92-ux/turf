@@ -11,14 +11,25 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AgentesRouteImport } from './routes/agentes'
+import { Route as ArquivoRouteImport } from './routes/arquivo'
 import { Route as CadernoRouteImport } from './routes/caderno'
+import { Route as CatalogoRouteImport } from './routes/catalogo'
+import { Route as CavalosRouteImport } from './routes/cavalos'
 import { Route as CorridasRouteImport } from './routes/corridas'
+import { Route as FontesRouteImport } from './routes/fontes'
 import { Route as ImportarRouteImport } from './routes/importar'
+import { Route as JoqueisRouteImport } from './routes/joqueis'
 import { Route as LivroRouteImport } from './routes/livro'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MaisRouteImport } from './routes/mais'
+import { Route as TreinadoresRouteImport } from './routes/treinadores'
+import { Route as ArquivoIdRouteImport } from './routes/arquivo.$id'
+import { Route as CavaloIdRouteImport } from './routes/cavalo.$id'
 import { Route as CorridaIdRouteImport } from './routes/corrida.$id'
+import { Route as JoqueiIdRouteImport } from './routes/joquei.$id'
 import { Route as LivroIndexRouteImport } from './routes/livro.index'
 import { Route as LivroIdRouteImport } from './routes/livro.$id'
+import { Route as TreinadorIdRouteImport } from './routes/treinador.$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -31,9 +42,24 @@ const AgentesRoute = AgentesRouteImport.update({
   path: '/agentes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArquivoRoute = ArquivoRouteImport.update({
+  id: '/arquivo',
+  path: '/arquivo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CadernoRoute = CadernoRouteImport.update({
   id: '/caderno',
   path: '/caderno',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogoRoute = CatalogoRouteImport.update({
+  id: '/catalogo',
+  path: '/catalogo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CavalosRoute = CavalosRouteImport.update({
+  id: '/cavalos',
+  path: '/cavalos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CorridasRoute = CorridasRouteImport.update({
@@ -41,9 +67,19 @@ const CorridasRoute = CorridasRouteImport.update({
   path: '/corridas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FontesRoute = FontesRouteImport.update({
+  id: '/fontes',
+  path: '/fontes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ImportarRoute = ImportarRouteImport.update({
   id: '/importar',
   path: '/importar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoqueisRoute = JoqueisRouteImport.update({
+  id: '/joqueis',
+  path: '/joqueis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LivroRoute = LivroRouteImport.update({
@@ -56,9 +92,34 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MaisRoute = MaisRouteImport.update({
+  id: '/mais',
+  path: '/mais',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TreinadoresRoute = TreinadoresRouteImport.update({
+  id: '/treinadores',
+  path: '/treinadores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArquivoIdRoute = ArquivoIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ArquivoRoute,
+} as any)
+const CavaloIdRoute = CavaloIdRouteImport.update({
+  id: '/cavalo/$id',
+  path: '/cavalo/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CorridaIdRoute = CorridaIdRouteImport.update({
   id: '/corrida/$id',
   path: '/corrida/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoqueiIdRoute = JoqueiIdRouteImport.update({
+  id: '/joquei/$id',
+  path: '/joquei/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LivroIndexRoute = LivroIndexRouteImport.update({
@@ -71,6 +132,11 @@ const LivroIdRoute = LivroIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => LivroRoute,
 } as any)
+const TreinadorIdRoute = TreinadorIdRouteImport.update({
+  id: '/treinador/$id',
+  path: '/treinador/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -80,25 +146,47 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/agentes': typeof AgentesRoute
+  '/arquivo': typeof ArquivoRouteWithChildren
   '/caderno': typeof CadernoRoute
+  '/catalogo': typeof CatalogoRoute
+  '/cavalos': typeof CavalosRoute
   '/corridas': typeof CorridasRoute
+  '/fontes': typeof FontesRoute
   '/importar': typeof ImportarRoute
+  '/joqueis': typeof JoqueisRoute
   '/livro': typeof LivroRouteWithChildren
   '/login': typeof LoginRoute
+  '/mais': typeof MaisRoute
+  '/treinadores': typeof TreinadoresRoute
+  '/arquivo/$id': typeof ArquivoIdRoute
+  '/cavalo/$id': typeof CavaloIdRoute
   '/corrida/$id': typeof CorridaIdRoute
+  '/joquei/$id': typeof JoqueiIdRoute
   '/livro/$id': typeof LivroIdRoute
+  '/treinador/$id': typeof TreinadorIdRoute
   '/livro/': typeof LivroIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/agentes': typeof AgentesRoute
+  '/arquivo': typeof ArquivoRouteWithChildren
   '/caderno': typeof CadernoRoute
+  '/catalogo': typeof CatalogoRoute
+  '/cavalos': typeof CavalosRoute
   '/corridas': typeof CorridasRoute
+  '/fontes': typeof FontesRoute
   '/importar': typeof ImportarRoute
+  '/joqueis': typeof JoqueisRoute
   '/login': typeof LoginRoute
+  '/mais': typeof MaisRoute
+  '/treinadores': typeof TreinadoresRoute
+  '/arquivo/$id': typeof ArquivoIdRoute
+  '/cavalo/$id': typeof CavaloIdRoute
   '/corrida/$id': typeof CorridaIdRoute
+  '/joquei/$id': typeof JoqueiIdRoute
   '/livro/$id': typeof LivroIdRoute
+  '/treinador/$id': typeof TreinadorIdRoute
   '/livro': typeof LivroIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -106,13 +194,24 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/agentes': typeof AgentesRoute
+  '/arquivo': typeof ArquivoRouteWithChildren
   '/caderno': typeof CadernoRoute
+  '/catalogo': typeof CatalogoRoute
+  '/cavalos': typeof CavalosRoute
   '/corridas': typeof CorridasRoute
+  '/fontes': typeof FontesRoute
   '/importar': typeof ImportarRoute
+  '/joqueis': typeof JoqueisRoute
   '/livro': typeof LivroRouteWithChildren
   '/login': typeof LoginRoute
+  '/mais': typeof MaisRoute
+  '/treinadores': typeof TreinadoresRoute
+  '/arquivo/$id': typeof ArquivoIdRoute
+  '/cavalo/$id': typeof CavaloIdRoute
   '/corrida/$id': typeof CorridaIdRoute
+  '/joquei/$id': typeof JoqueiIdRoute
   '/livro/$id': typeof LivroIdRoute
+  '/treinador/$id': typeof TreinadorIdRoute
   '/livro/': typeof LivroIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -121,38 +220,71 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/agentes'
+    | '/arquivo'
     | '/caderno'
+    | '/catalogo'
+    | '/cavalos'
     | '/corridas'
+    | '/fontes'
     | '/importar'
+    | '/joqueis'
     | '/livro'
     | '/login'
+    | '/mais'
+    | '/treinadores'
+    | '/arquivo/$id'
+    | '/cavalo/$id'
     | '/corrida/$id'
+    | '/joquei/$id'
     | '/livro/$id'
+    | '/treinador/$id'
     | '/livro/'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/agentes'
+    | '/arquivo'
     | '/caderno'
+    | '/catalogo'
+    | '/cavalos'
     | '/corridas'
+    | '/fontes'
     | '/importar'
+    | '/joqueis'
     | '/login'
+    | '/mais'
+    | '/treinadores'
+    | '/arquivo/$id'
+    | '/cavalo/$id'
     | '/corrida/$id'
+    | '/joquei/$id'
     | '/livro/$id'
+    | '/treinador/$id'
     | '/livro'
     | '/api/auth/$'
   id:
     | '__root__'
     | '/'
     | '/agentes'
+    | '/arquivo'
     | '/caderno'
+    | '/catalogo'
+    | '/cavalos'
     | '/corridas'
+    | '/fontes'
     | '/importar'
+    | '/joqueis'
     | '/livro'
     | '/login'
+    | '/mais'
+    | '/treinadores'
+    | '/arquivo/$id'
+    | '/cavalo/$id'
     | '/corrida/$id'
+    | '/joquei/$id'
     | '/livro/$id'
+    | '/treinador/$id'
     | '/livro/'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
@@ -160,12 +292,22 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AgentesRoute: typeof AgentesRoute
+  ArquivoRoute: typeof ArquivoRouteWithChildren
   CadernoRoute: typeof CadernoRoute
+  CatalogoRoute: typeof CatalogoRoute
+  CavalosRoute: typeof CavalosRoute
   CorridasRoute: typeof CorridasRoute
+  FontesRoute: typeof FontesRoute
   ImportarRoute: typeof ImportarRoute
+  JoqueisRoute: typeof JoqueisRoute
   LivroRoute: typeof LivroRouteWithChildren
   LoginRoute: typeof LoginRoute
+  MaisRoute: typeof MaisRoute
+  TreinadoresRoute: typeof TreinadoresRoute
+  CavaloIdRoute: typeof CavaloIdRoute
   CorridaIdRoute: typeof CorridaIdRoute
+  JoqueiIdRoute: typeof JoqueiIdRoute
+  TreinadorIdRoute: typeof TreinadorIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -185,11 +327,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/arquivo': {
+      id: '/arquivo'
+      path: '/arquivo'
+      fullPath: '/arquivo'
+      preLoaderRoute: typeof ArquivoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/caderno': {
       id: '/caderno'
       path: '/caderno'
       fullPath: '/caderno'
       preLoaderRoute: typeof CadernoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalogo': {
+      id: '/catalogo'
+      path: '/catalogo'
+      fullPath: '/catalogo'
+      preLoaderRoute: typeof CatalogoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cavalos': {
+      id: '/cavalos'
+      path: '/cavalos'
+      fullPath: '/cavalos'
+      preLoaderRoute: typeof CavalosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/corridas': {
@@ -199,11 +362,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CorridasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/fontes': {
+      id: '/fontes'
+      path: '/fontes'
+      fullPath: '/fontes'
+      preLoaderRoute: typeof FontesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/importar': {
       id: '/importar'
       path: '/importar'
       fullPath: '/importar'
       preLoaderRoute: typeof ImportarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/joqueis': {
+      id: '/joqueis'
+      path: '/joqueis'
+      fullPath: '/joqueis'
+      preLoaderRoute: typeof JoqueisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/livro': {
@@ -220,11 +397,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mais': {
+      id: '/mais'
+      path: '/mais'
+      fullPath: '/mais'
+      preLoaderRoute: typeof MaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/treinadores': {
+      id: '/treinadores'
+      path: '/treinadores'
+      fullPath: '/treinadores'
+      preLoaderRoute: typeof TreinadoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/arquivo/$id': {
+      id: '/arquivo/$id'
+      path: '/$id'
+      fullPath: '/arquivo/$id'
+      preLoaderRoute: typeof ArquivoIdRouteImport
+      parentRoute: typeof ArquivoRoute
+    }
+    '/cavalo/$id': {
+      id: '/cavalo/$id'
+      path: '/cavalo/$id'
+      fullPath: '/cavalo/$id'
+      preLoaderRoute: typeof CavaloIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/corrida/$id': {
       id: '/corrida/$id'
       path: '/corrida/$id'
       fullPath: '/corrida/$id'
       preLoaderRoute: typeof CorridaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/joquei/$id': {
+      id: '/joquei/$id'
+      path: '/joquei/$id'
+      fullPath: '/joquei/$id'
+      preLoaderRoute: typeof JoqueiIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/livro/': {
@@ -241,6 +453,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LivroIdRouteImport
       parentRoute: typeof LivroRoute
     }
+    '/treinador/$id': {
+      id: '/treinador/$id'
+      path: '/treinador/$id'
+      fullPath: '/treinador/$id'
+      preLoaderRoute: typeof TreinadorIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -250,6 +469,17 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface ArquivoRouteChildren {
+  ArquivoIdRoute: typeof ArquivoIdRoute
+}
+
+const ArquivoRouteChildren: ArquivoRouteChildren = {
+  ArquivoIdRoute: ArquivoIdRoute,
+}
+
+const ArquivoRouteWithChildren =
+  ArquivoRoute._addFileChildren(ArquivoRouteChildren)
 
 interface LivroRouteChildren {
   LivroIdRoute: typeof LivroIdRoute
@@ -266,12 +496,22 @@ const LivroRouteWithChildren = LivroRoute._addFileChildren(LivroRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AgentesRoute: AgentesRoute,
+  ArquivoRoute: ArquivoRouteWithChildren,
   CadernoRoute: CadernoRoute,
+  CatalogoRoute: CatalogoRoute,
+  CavalosRoute: CavalosRoute,
   CorridasRoute: CorridasRoute,
+  FontesRoute: FontesRoute,
   ImportarRoute: ImportarRoute,
+  JoqueisRoute: JoqueisRoute,
   LivroRoute: LivroRouteWithChildren,
   LoginRoute: LoginRoute,
+  MaisRoute: MaisRoute,
+  TreinadoresRoute: TreinadoresRoute,
+  CavaloIdRoute: CavaloIdRoute,
   CorridaIdRoute: CorridaIdRoute,
+  JoqueiIdRoute: JoqueiIdRoute,
+  TreinadorIdRoute: TreinadorIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

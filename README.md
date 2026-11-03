@@ -29,6 +29,17 @@ Nenhuma vai para o cliente, e nenhuma deve ser commitada.
 
 A quota do chat, por omissão, é 8 pedidos por utilizador por hora, 40 no total, e uma chamada de cada vez.
 
-## O que não está feito
+## Arquivo histórico
 
-Não há feed ao vivo, calibração prospectiva nem rentabilidade validada. O ROI do caderno de demonstração descreve o gerador, não um histórico de apostas.
+O arquivo (`/cavalos`, `/arquivo`, `/fontes`) é outro sítio, também vazio até uma importação.
+
+- Identidade estável por chave. Dois cavalos com o mesmo nome e chaves diferentes não são fundidos: ficam pendentes de correspondência.
+- Peso corporal (`bodyKg`) e peso carregado (`carriedLb`) são campos diferentes.
+- Queda sem causa publicada mostra «Causa não informada». Sem prazo anunciado, «Retorno não informado».
+- Azarão usa a regra versionada `longshot-example-1` (odd decimal 10 como exemplo, não como definição universal). Sem preço com hora observada, não há classificação.
+- O arquivo aceita JSON e CSV em Fontes. O mesmo conteúdo não se grava duas vezes. A matriz dos 431 atributos está em `docs/CATALOGO.md` e no ecrã Catálogo. Preenchimento: vazio até importação.
+- O treino experimental compara o modelo com o mercado, sem o preço, e no alvo de top 3. Continua experimental.
+- Não há feed. Faltam `TURF_PROVIDER_URL` e `TURF_PROVIDER_KEY`. Nada disto é cotação ao vivo.
+
+Decisões e como retomar: [docs/HISTORICO.md](docs/HISTORICO.md).
+

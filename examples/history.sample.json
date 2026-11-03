@@ -1,0 +1,18 @@
+{
+  "origin": "example",
+  "entities": [
+    { "kind": "horse", "key": "ex-h1", "name": "Exemplo Um" },
+    { "kind": "horse", "key": "ex-h2", "name": "Exemplo Dois" }
+  ],
+  "courses": [{ "key": "ex-naas", "name": "Naas", "country": "IE" }],
+  "races": [{
+    "key": "ex-r1",
+    "courseKey": "ex-naas",
+    "name": "Corrida de exemplo",
+    "offAt": "2026-05-01T14:00:00.000Z",
+    "runners": [
+      { "horseKey": "ex-h1", "carriedLb": 154, "bodyKg": 470, "started": true, "position": 1, "prices": [{ "book": "casa", "market": "WIN", "decimal": 12, "kind": "preoff", "observedAt": "2026-05-01T13:00:00.000Z" }] },
+      { "horseKey": "ex-h2", "carriedLb": 150, "started": true, "position": 2, "prices": [{ "book": "casa", "market": "WIN", "decimal": 2.5, "kind": "preoff", "observedAt": "2026-05-01T13:00:00.000Z" }] }
+    ]
+  }]
+}
