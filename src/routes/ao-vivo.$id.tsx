@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Shirt } from "lucide-react";
 import { useEffect, useState } from "react";
 import { importUserCard } from "@/lib/racing/api";
 import { liveRace } from "@/lib/racing/live-api";
@@ -12,6 +13,8 @@ function Ficha() {
   const [race, setRace] = useState<LiveRace | null>(null);
   const [error, setError] = useState("");
   const [note, setNote] = useState("");
+  const [order, setOrder] = useState<"preco" | "numero">("preco");
+  const [stakeText, setStakeText] = useState("10");
 
   useEffect(() => {
     setRace(null);
@@ -85,61 +88,116 @@ function Ficha() {
     );
   }
   if (!race) return <p className="text-sm text-muted" role="status">A ler a ficha pública…</p>;
-  const priced = race.runners.filter((runner) => runner.decimal != null && runner.status === "RUNNER");
-  const leader = priced.slice().sort((a, b) => (a.decimal ?? 0) - (b.decimal ?? 0))[0];
+  const stake = Number(stakeText.replace(",", "."));
+  const stakeOk = Number.isFinite(stake) && stake > 0;
+  const runners = race.runners.slice().sort((a, b) => {
+    if (order === "numero") return (a.cloth ?? 99) - (b.cloth ?? 99);
+    const ap = a.decimal ?? 999;
+    const bp = b.decimal ?? 999;
+    return ap - bp || (a.cloth ?? 99) - (b.cloth ?? 99);
+  });
+  const leader = runners.find((runner) => runner.decimal != null && runner.status !== "NON_RUNNER");
+  const chance = (decimal: number | null) => (decimal != null && decimal > 1 ? `${(100 / decimal).toFixed(1).replace(".", ",")}%` : "—");
+  const euros = (value: number) => `€ ${value.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const kg = (lb: number) => `${(lb * 0.45359237).toFixed(1).replace(".", ",")} kg`;
 
   return (
     <div>
-      <p className="text-xs tracking-[0.16em] text-subtle uppercase">A ficha da corrida</p>
+      <p className="text-[11px] tracking-[0.16em] text-[#7c8a8b] uppercase">A ficha da corrida</p>
       <div className="mt-3 flex items-start justify-between gap-3">
         <p className="text-sm">{race.course} · {race.country}</p>
-        <p className="font-display text-4xl tabular">{race.time ?? "—"}</p>
+        <p className="font-display text-4xl leading-none tabular">{race.time ?? "—"}</p>
       </div>
-      <h1 className="mt-2 font-display text-5xl tracking-tight">{race.name}</h1>
-      <p className="mt-2 text-sm text-muted">
+      <h1 className="mt-2 font-display text-[2.6rem] leading-none tracking-tight">{race.name}</h1>
+      <p className="mt-3 text-[13px] text-[#9aa6a5]">
         {[race.distance, race.going || "Terreno não indicado", race.discipline ?? "Tipo não indicado", stageLabel(race.stage)].join(" · ")}
       </p>
-      <p className="mt-3 text-sm text-muted" role="status">
-        Preço do cartão às {formatDublin(race.receivedAt)}. Não é uma casa e não é o SP.
+      <p className="mt-3 flex items-center gap-2 text-[12px] text-[#d8be87]" role="status">
+        <span className="size-1.5 rounded-full bg-[#d8be87]" aria-hidden="true" />
+        Preço do cartão · {formatDublin(race.receivedAt)}
       </p>
       {leader ? (
-        <section className="hero-card mt-5 px-5 py-5">
-          <p className="text-xs tracking-[0.14em] text-[#d7efe4] uppercase">Preço mais curto</p>
-          <h2 className="mt-2 font-display text-4xl">{leader.name}</h2>
-          <p className="text-sm text-muted">{[leader.jockey, leader.trainer].filter(Boolean).join(" · ")}</p>
-          <p className="mt-4 font-display text-4xl tabular">{leader.fractional}</p>
-          <p className="text-xs text-subtle">Forma publicada: {leader.form ?? "não indicada"}</p>
+        <section className="mt-4 rounded-2xl border border-white/8 bg-[#13191c] px-4 py-5">
+          <p className="text-center text-[10px] tracking-[0.16em] text-[#7c8a8b]">PREÇO MAIS CURTO DO CARTÃO</p>
+          <div className="mt-3 flex items-center gap-3">
+            <span className="flex size-12 items-center justify-center rounded-2xl bg-[#0e1417] text-[#b5d8c8]" aria-hidden="true">
+              <Shirt className="size-6" />
+            </span>
+            <span>
+              <span className="block font-display text-[1.8rem] leading-tight tracking-tight">{leader.name}</span>
+              <span className="block text-[13px] text-[#9aa6a5]">{[leader.jockey, leader.trainer].filter(Boolean).join(" · ") || "Ligações não indicadas"}</span>
+            </span>
+          </div>
+          <div className="mt-5 grid grid-cols-3">
+            <p>
+              <span className="block text-[11px] text-[#7c8a8b]">No preço</span>
+              <span className="font-display text-[1.8rem] tabular">{chance(leader.decimal)}</span>
+            </p>
+            <p className="border-l border-white/10 px-3">
+              <span className="block text-[11px] text-[#7c8a8b]">Decimal</span>
+              <span className="font-display text-[1.8rem] tabular">{leader.decimal?.toFixed(2).replace(".", ",")}</span>
+            </p>
+            <p className="border-l border-white/10 pl-3">
+              <span className="block text-[11px] text-[#7c8a8b]">No cartão</span>
+              <span className="font-display text-[1.8rem] tabular">{leader.fractional}</span>
+            </p>
+          </div>
+          <p className="mt-4 flex gap-2 text-[12px] text-[#9aa6a5]">
+            <span aria-hidden="true">ⓘ</span>
+            Esta percentagem é só o preço publicado. Não é um modelo e não recebe selo de seleção.
+          </p>
+          <div className="mt-4 flex items-center gap-2">
+            <label htmlFor="aposta-ficha" className="text-[12px] text-[#9aa6a5]">Se apostares</label>
+            <input id="aposta-ficha" inputMode="decimal" value={stakeText} onChange={(event) => setStakeText(event.target.value)} className="h-10 w-20 rounded-md border border-white/10 bg-[#0e1417] px-2 text-right tabular outline-none" />
+            <span className="text-[12px] text-[#9aa6a5]">€</span>
+          </div>
+          {stakeOk && leader.decimal ? (
+            <p className="mt-3 text-[13px]">
+              Se vencer, recebes {euros(stake * leader.decimal)} e o lucro é <span className="text-[#b1d9c3]">+{euros(stake * (leader.decimal - 1))}</span>. Se não vencer, perdes {euros(stake)}.
+            </p>
+          ) : null}
         </section>
       ) : null}
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link to="/corridas" className="chip-glass inline-flex h-11 items-center rounded-full px-4 text-sm">Programa</Link>
-        <button type="button" className="btn-mint" onClick={save}>Travar cópia no livro</button>
+        <Link to="/corridas" className="inline-flex h-10 items-center rounded-md border border-white/10 px-3 text-[13px]">Programa</Link>
+        <button type="button" className="inline-flex h-10 items-center rounded-md bg-[#b5d8c8] px-3 text-[13px] font-medium text-[#15271d]" onClick={save}>Travar cópia no livro</button>
       </div>
-      {note ? <p className="mt-3 text-sm text-muted" role="status">{note}</p> : null}
-      <h2 className="mt-8 font-display text-3xl">Participantes</h2>
-      <ul className="mt-3 space-y-2">
-        {race.runners.map((runner) => (
-          <li key={runner.id} className="panel grid grid-cols-[1fr_auto] gap-3 px-4 py-3">
-            <div>
-              <p className="font-medium">
-                {runner.cloth != null ? <span className="mr-2 text-subtle tabular">{runner.cloth}</span> : null}
-                {runner.name}
+      {note ? <p className="mt-3 text-sm text-[#9aa6a5]" role="status">{note}</p> : null}
+      <div className="mt-8 flex items-center justify-between gap-3">
+        <h2 className="font-display text-[1.7rem]">Participantes</h2>
+        <button type="button" className="h-9 rounded-md border border-white/10 px-3 text-[12px] text-[#9aa6a5]" onClick={() => setOrder(order === "preco" ? "numero" : "preco")} aria-pressed={order === "preco"}>
+          {order === "preco" ? "Por preço" : "Por número"}
+        </button>
+      </div>
+      <div className="mt-3 overflow-hidden rounded-xl border border-white/8">
+        <div className="grid grid-cols-[1fr_4.5rem_4.2rem] px-3 py-2 text-[11px] text-[#7c8a8b]">
+          <span>Cavalo / equipa</span>
+          <span>No preço</span>
+          <span className="text-right">Preço</span>
+        </div>
+        <ul>
+          {runners.map((runner) => (
+            <li key={runner.id} className="grid grid-cols-[1fr_4.5rem_4.2rem] items-center gap-2 border-t border-white/8 px-3 py-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm">
+                  {runner.cloth != null ? <span className="mr-1 text-[#7c8a8b] tabular">{runner.cloth}.</span> : null}
+                  {runner.name}
+                </p>
+                <p className="truncate text-[11px] text-[#9aa6a5]">{[runner.jockey, runner.trainer].filter(Boolean).join(" · ") || "Equipa não indicada"}</p>
+                <p className="truncate text-[11px] text-[#7c8a8b]">
+                  {[runner.form, runner.or != null ? `OR ${runner.or}` : null, runner.weightLb != null ? kg(runner.weightLb) : null, runner.status === "NON_RUNNER" ? "Não parte" : null].filter(Boolean).join(" · ") || "Sem ficha extra"}
+                </p>
+              </div>
+              <p className="font-display text-lg tabular">{chance(runner.decimal)}</p>
+              <p className="text-right">
+                <span className="block font-display text-xl tabular">{runner.fractional ?? "—"}</span>
+                <span className="text-[10px] text-[#7c8a8b]">{runner.decimal != null ? "Cartão" : "Sem preço"}</span>
               </p>
-              <p className="text-xs text-subtle">
-                {[runner.jockey, runner.trainer, runner.form, runner.weightLb != null ? `${runner.weightLb} lb` : null, runner.or != null ? `OR ${runner.or}` : null]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-              <p className="text-xs text-subtle">{runner.status === "NON_RUNNER" ? "Não parte" : runner.status === "RUNNER" ? "Parte" : runner.status}</p>
-            </div>
-            <p className="text-right">
-              <span className="block font-display text-2xl tabular">{runner.fractional ?? "—"}</span>
-              <span className="text-xs text-subtle">{runner.decimal != null ? "cartão" : "sem preço"}</span>
-            </p>
-          </li>
-        ))}
-      </ul>
-      {race.runners.length === 0 ? <p className="mt-6 text-sm text-muted">A fonte não publicou participantes.</p> : null}
+            </li>
+          ))}
+        </ul>
+      </div>
+      {race.runners.length === 0 ? <p className="mt-6 text-sm text-[#9aa6a5]">A fonte não publicou participantes.</p> : null}
     </div>
   );
 }
