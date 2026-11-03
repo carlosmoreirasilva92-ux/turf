@@ -19,6 +19,7 @@ export type LiveBoardRace = LiveRaceSummary & {
   shownTrainer: string | null;
   shownFractional: string | null;
   shownDecimal: number | null;
+  shownForm: string | null;
   field: number | null;
 };
 
@@ -119,6 +120,7 @@ export async function fetchLiveBoard(now = new Date()): Promise<LiveResult<LiveB
       shownTrainer: shown?.trainer ?? null,
       shownFractional: shown?.fractional ?? null,
       shownDecimal: shown?.decimal ?? null,
+      shownForm: shown?.form ?? null,
       field: fiche.ok ? fiche.value.runners.length : race.runnersDeclared,
     } satisfies LiveBoardRace;
   });
