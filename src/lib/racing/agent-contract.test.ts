@@ -1,15 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { bestOfDay, sourceDecision } from "./agent-contract.ts";
+import { AGENT_RULES, bestOfDay, sourceDecision } from "./agent-contract.ts";
 import type { LiveBoard } from "./live-source.ts";
 
 test("a fonte ativa é o cartão público e a conta de casa fica de fora", () => {
   const decision = sourceDecision();
   assert.equal(decision.active, "cartao-publico");
-  const house = decision.sources.find((source) => source.id === "paddy-power");
-  assert.equal(house?.name, "Paddy Power");
+  const house = decision.sources.find((source) => source.id === "betfair-exchange");
+  assert.equal(house?.name, "Betfair Exchange");
   assert.equal(house?.active, false);
-  assert.match(house?.decision ?? "", /palavra-passe/);
+  assert.equal(house?.aliases.includes("Paddy Power"), true);
+  assert.match(AGENT_RULES.join(" "), /palavra-passe/);
+  assert.match(house?.decision ?? "", /não é aberta/i);
 });
 
 test("os melhores do dia são os preços mais curtos ainda por largar", () => {

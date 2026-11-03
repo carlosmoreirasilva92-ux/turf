@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Flag, Info, MapPin, RefreshCw, Shirt, Star } from "lucide-react";
 import { useEffect, useState } from "react";
-import { liveBoard, liveDay } from "@/lib/racing/live-api";
+import { liveBoard, liveDay, betfairOverlay } from "@/lib/racing/live-api";
+import { horseKey, type BackQuote, type BetfairView } from "@/lib/racing/betfair-join";
 import { stageLabel, type LiveDay, type LiveRaceSummary } from "@/lib/racing/live-card";
 import type { LiveBoard, LiveBoardRace } from "@/lib/racing/live-source";
 import { dublinClock } from "@/lib/racing/time";
@@ -36,6 +37,10 @@ function euros(value: number) {
   return `€ ${value.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function dec(value: number) {
+  return value.toFixed(2).replace(".", ",");
+}
+
 function HorseName({ name }: { name: string }) {
   const parts = name.trim().split(/\s+/);
   const first = parts[0] ?? name;
@@ -48,7 +53,7 @@ function HorseName({ name }: { name: string }) {
   );
 }
 
-function RaceCard({ race, shown, stake }: { race: LiveRaceSummary; shown?: LiveBoardRace; stake: number }) {
+function RaceCard({ race, shown, stake, quote }: { race: LiveRaceSummary; shown?: LiveBoardRace; stake: number; quote?: BackQuote | null }) {
   const implied = pct(shown?.shownDecimal ?? null);
   const width = shown?.shownDecimal && shown.shownDecimal > 1 ? Math.min(100, 100 / shown.shownDecimal) : 0;
   return (
@@ -96,6 +101,10 @@ function RaceCard({ race, shown, stake }: { race: LiveRaceSummary; shown?: LiveB
             <span className="block text-[11px] text-[#b1d9c3]">
               {shown?.shownDecimal && stake > 0 ? `Se vencer: +${euros(stake * (shown.shownDecimal - 1))}` : "Sem preço para a conta"}
             </span>
+            <span className="mt-1 block text-[12px] text-[#d7efe4]">
+              {quote ? `Back ${dec(quote.back)} · ${String(quote.percent).replace(".", ",")}%` : "Back por indicar"}
+            </span>
+            {quote?.valor ? <span className="mt-1 inline-flex rounded-md bg-[#b5d8c8] px-2 py-0.5 text-[11px] text-[#15271d]">Valor</span> : null}
           </p>
         </div>
         <div className="flex items-center justify-between border-t border-white/8 py-3">
@@ -115,6 +124,7 @@ function RaceCard({ race, shown, stake }: { race: LiveRaceSummary; shown?: LiveB
 export function LiveList({ variant }: { variant: "hoje" | "lista" }) {
   const [day, setDay] = useState<LiveDay | null>(null);
   const [board, setBoard] = useState<LiveBoard | null>(null);
+  const [exchange, setExchange] = useState<BetfairView | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [scope, setScope] = useState<(typeof SCOPES)[number]["id"]>("IEGB");
@@ -143,11 +153,14 @@ export function LiveList({ variant }: { variant: "hoje" | "lista" }) {
         if (result.ok) setBoard(result.value);
       })
       .catch(() => undefined);
+    void betfairOverlay()
+      .then((result) => setExchange(result))
+      .catch(() => setExchange({ ok: false, reason: "A Betfair Exchange não respondeu. O cartão público mantém-se." }));
   }
 
   useEffect(() => {
     load(true);
-    const timer = window.setInterval(() => load(false), 45_000);
+    const timer = window.setInterval(() => load(false), 60_000);
     return () => window.clearInterval(timer);
   }, []);
 
@@ -197,9 +210,39 @@ export function LiveList({ variant }: { variant: "hoje" | "lista" }) {
           <p className="mt-3 text-[12px] text-[#7c8a8b]" role="status">
             {loading ? "A ler o cartão público…" : error || (day ? `Atualizado às ${dublinClock(new Date(board?.receivedAt ?? day.receivedAt))}.` : "")}
           </p>
-          <p className="mt-2 text-[12px] text-[#d8be87]">
-            Paddy Power não está ligada. Estes preços são o cartão público, não os da Paddy Power e não são o SP.
+          <p className="mt-2 text-[12px] text-[#9aa6a5]" role="status">
+            {exchange?.ok
+              ? `${exchange.notice} Atualizado às ${dublinClock(new Date(exchange.receivedAt))}.`
+              : exchange?.reason || "A ler a Betfair Exchange…"}
           </p>
+          {exchange?.ok ? (
+            <section className="mt-5" aria-label="Oportunidades do dia">
+              <p className="text-[10px] tracking-[0.16em] text-[#7c8a8b]">CARTÃO PELO MENOS 10% ACIMA DO BACK</p>
+              <h2 className="font-display text-[2rem] leading-none tracking-tight">Oportunidades do dia</h2>
+              {exchange.opportunities.length === 0 ? (
+                <p className="mt-3 text-[13px] text-[#9aa6a5]">Nenhum cavalo passa essa conta neste cartão.</p>
+              ) : (
+                <ol className="mt-3 space-y-2">
+                  {exchange.opportunities.map((row) => (
+                    <li key={`${row.raceId}-${row.horse}`}>
+                      <Link to="/ao-vivo/$id" params={{ id: row.raceId }} className="block rounded-xl border border-[#b5d8c8]/20 bg-[#13191c] px-4 py-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <p>
+                            <span className="block font-display text-[1.35rem] leading-tight">{row.horse}</span>
+                            <span className="text-[12px] text-[#9aa6a5]">{row.course} · {row.time ?? "—"} · cartão {row.publicFractional ?? dec(row.publicDecimal)}</span>
+                          </p>
+                          <span className="rounded-md bg-[#b5d8c8] px-2 py-0.5 text-[11px] text-[#15271d]">Valor</span>
+                        </div>
+                        <p className="mt-2 text-[13px] text-[#d7efe4]">
+                          Back {dec(row.back)} · {String(row.percent).replace(".", ",")}% · diferença {(row.gap * 100).toFixed(1).replace(".", ",")}%
+                        </p>
+                      </Link>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </section>
+          ) : null}
           <section className="mt-5" aria-label="Melhores cavalos do dia">
             <p className="text-[10px] tracking-[0.16em] text-[#7c8a8b]">PARA APOSTAR HOJE</p>
             <h2 className="font-display text-[2rem] leading-none tracking-tight">Os melhores do dia</h2>
@@ -376,7 +419,13 @@ export function LiveList({ variant }: { variant: "hoje" | "lista" }) {
       ) : null}
       <ul className="mt-3 space-y-3">
         {(variant === "hoje" ? races.slice(0, 6) : races).map((race) => (
-          <RaceCard key={race.id} race={race} shown={prices.get(race.id)} stake={stakeOk ? stake : 0} />
+          <RaceCard
+            key={race.id}
+            race={race}
+            shown={prices.get(race.id)}
+            stake={stakeOk ? stake : 0}
+            quote={exchange?.ok && prices.get(race.id)?.shownName ? exchange.quotes[race.id]?.[horseKey(prices.get(race.id)?.shownName ?? "")] : null}
+          />
         ))}
       </ul>
     </div>

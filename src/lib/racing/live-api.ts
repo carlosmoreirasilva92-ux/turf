@@ -1,9 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
+import { fetchBetfairOverlay } from "./betfair.server.ts";
 import { fetchLiveBoard, fetchLiveDay, fetchLiveRace } from "./live-source.ts";
 
 export const liveDay = createServerFn({ method: "GET" }).handler(async () => fetchLiveDay());
 
 export const liveBoard = createServerFn({ method: "GET" }).handler(async () => fetchLiveBoard());
+
+export const betfairOverlay = createServerFn({ method: "GET" }).handler(async () => fetchBetfairOverlay());
 
 export const liveRace = createServerFn({ method: "POST" })
   .validator((data: { id?: string }) => {

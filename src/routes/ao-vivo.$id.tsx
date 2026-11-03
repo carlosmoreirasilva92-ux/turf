@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Shirt } from "lucide-react";
 import { useEffect, useState } from "react";
 import { importUserCard } from "@/lib/racing/api";
-import { liveRace } from "@/lib/racing/live-api";
+import { betfairOverlay, liveRace } from "@/lib/racing/live-api";
+import { horseKey, type BetfairView } from "@/lib/racing/betfair-join";
 import { LIVE_BOOK, stageLabel, type LiveRace } from "@/lib/racing/live-card";
 import { formatDublin } from "@/lib/racing/time";
 
@@ -15,16 +16,39 @@ function Ficha() {
   const [note, setNote] = useState("");
   const [order, setOrder] = useState<"preco" | "numero">("preco");
   const [stakeText, setStakeText] = useState("10");
+  const [exchange, setExchange] = useState<BetfairView | null>(null);
 
   useEffect(() => {
+    let stop = false;
+    function load() {
+      void liveRace({ data: { id } })
+        .then((result) => {
+          if (stop) return;
+          if (!result.ok) setError(result.reason);
+          else {
+            setError("");
+            setRace(result.value);
+          }
+        })
+        .catch(() => {
+          if (!stop) setError("A ficha pública não respondeu. Nada foi inventado.");
+        });
+      void betfairOverlay()
+        .then((result) => {
+          if (!stop) setExchange(result);
+        })
+        .catch(() => {
+          if (!stop) setExchange({ ok: false, reason: "A Betfair Exchange não respondeu. O cartão público mantém-se." });
+        });
+    }
     setRace(null);
     setError("");
-    void liveRace({ data: { id } })
-      .then((result) => {
-        if (!result.ok) setError(result.reason);
-        else setRace(result.value);
-      })
-      .catch(() => setError("A ficha pública não respondeu. Nada foi inventado."));
+    load();
+    const timer = window.setInterval(load, 60_000);
+    return () => {
+      stop = true;
+      window.clearInterval(timer);
+    };
   }, [id]);
 
   function save() {
@@ -100,6 +124,8 @@ function Ficha() {
   const chance = (decimal: number | null) => (decimal != null && decimal > 1 ? `${(100 / decimal).toFixed(1).replace(".", ",")}%` : "—");
   const euros = (value: number) => `€ ${value.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const kg = (lb: number) => `${(lb * 0.45359237).toFixed(1).replace(".", ",")} kg`;
+  const quoteOf = (name: string) => (exchange?.ok ? exchange.quotes[race.id]?.[horseKey(name)] : undefined);
+  const leaderQuote = leader ? quoteOf(leader.name) : undefined;
 
   return (
     <div>
@@ -112,9 +138,8 @@ function Ficha() {
       <p className="mt-3 text-[13px] text-[#9aa6a5]">
         {[race.distance, race.going || "Terreno não indicado", race.discipline ?? "Tipo não indicado", stageLabel(race.stage)].join(" · ")}
       </p>
-      <p className="mt-3 flex items-center gap-2 text-[12px] text-[#d8be87]" role="status">
-        <span className="size-1.5 rounded-full bg-[#d8be87]" aria-hidden="true" />
-        Preço do cartão · {formatDublin(race.receivedAt)}
+      <p className="mt-2 text-[12px] text-[#9aa6a5]" role="status">
+        {exchange?.ok ? `${exchange.notice} Atualizado às ${formatDublin(exchange.receivedAt)}.` : exchange?.reason || "A ler a Betfair Exchange…"}
       </p>
       {leader ? (
         <section className="mt-4 rounded-2xl border border-white/8 bg-[#13191c] px-4 py-5">
@@ -142,9 +167,13 @@ function Ficha() {
               <span className="font-display text-[1.8rem] tabular">{leader.fractional}</span>
             </p>
           </div>
-          <p className="mt-4 flex gap-2 text-[12px] text-[#9aa6a5]">
+          <p className="mt-4 text-[13px] text-[#d7efe4]">
+            {leaderQuote ? `Back ${leaderQuote.back.toFixed(2).replace(".", ",")} · ${String(leaderQuote.percent).replace(".", ",")}%` : "Back da Betfair por indicar"}
+            {leaderQuote?.valor ? <span className="ml-2 rounded-md bg-[#b5d8c8] px-2 py-0.5 text-[11px] text-[#15271d]">Valor</span> : null}
+          </p>
+          <p className="mt-3 flex gap-2 text-[12px] text-[#9aa6a5]">
             <span aria-hidden="true">ⓘ</span>
-            Esta percentagem é só o preço publicado. Não é um modelo e não recebe selo de seleção.
+            Esta percentagem é só o preço publicado. O Back é a Betfair Exchange, com atraso. Não é um modelo.
           </p>
           <div className="mt-4 flex items-center gap-2">
             <label htmlFor="aposta-ficha" className="text-[12px] text-[#9aa6a5]">Se apostares</label>
@@ -192,6 +221,16 @@ function Ficha() {
               <p className="text-right">
                 <span className="block font-display text-xl tabular">{runner.fractional ?? "—"}</span>
                 <span className="text-[10px] text-[#7c8a8b]">{runner.decimal != null ? "Cartão" : "Sem preço"}</span>
+                {(() => {
+                  const quote = quoteOf(runner.name);
+                  if (!quote) return null;
+                  return (
+                    <span className="mt-1 block text-[10px] text-[#d7efe4]">
+                      Back {quote.back.toFixed(2).replace(".", ",")} · {String(quote.percent).replace(".", ",")}%
+                      {quote.valor ? " · Valor" : ""}
+                    </span>
+                  );
+                })()}
               </p>
             </li>
           ))}

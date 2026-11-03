@@ -24,13 +24,13 @@ export function sourceDecision(): { active: string; sources: SourceRow[] } {
         decision: "Fonte em uso. É a única que responde sem conta. Não é uma casa e não é o SP.",
       },
       {
-        id: "paddy-power",
-        name: "Paddy Power",
-        aliases: [],
+        id: "betfair-exchange",
+        name: "Betfair Exchange",
+        aliases: ["Paddy Power"],
         active: false,
         needsAccount: true,
         decision:
-          "Casa que escolheste. Não está ligada. A Paddy Power não tem uma API pública de corridas. Este servidor não entra na conta e não guarda a palavra-passe. Sem uma fonte licenciada, a mesa usa o cartão público, que não é a Paddy Power e não é o SP.",
+          "Referência de Back no mercado WIN, com atraso de alguns segundos, só quando o servidor tem a chave atrasada. Não é o preço do cartão público e não é o SP. A conta Paddy Power não é aberta.",
       },
       {
         id: "the-racing-api",
@@ -58,7 +58,8 @@ export const AGENT_RULES = [
   "Se o cavalo vencer, o retorno é aposta vezes o decimal. Se não vencer, perde-se a aposta.",
   "Não inventar odd, resultado, jóquei, lesão ou prazo de regresso.",
   "Não usar o caderno de demonstração para escolher um cavalo real.",
-  "Não tratar a Paddy Power como fonte ativa. Ela não está ligada e os preços dela não estão nesta resposta.",
+  "O Back da Betfair, quando existe, é referência atrasada. Valor significa que o preço do cartão é pelo menos 10% maior do que esse Back. Não é uma aposta feita.",
+  "Não tratar a Paddy Power como fonte ativa. A conta dela não é aberta e a palavra-passe não fica no navegador.",
 ];
 
 export function bestOfDay(board: LiveBoard, stake = 10) {
