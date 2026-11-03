@@ -32,6 +32,10 @@ function dayLabel(date: string) {
   }).format(new Date(Date.UTC(year, month - 1, day)));
 }
 
+function euros(value: number) {
+  return `€ ${value.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
 function HorseName({ name }: { name: string }) {
   const parts = name.trim().split(/\s+/);
   const first = parts[0] ?? name;
@@ -44,7 +48,7 @@ function HorseName({ name }: { name: string }) {
   );
 }
 
-function RaceCard({ race, shown }: { race: LiveRaceSummary; shown?: LiveBoardRace }) {
+function RaceCard({ race, shown, stake }: { race: LiveRaceSummary; shown?: LiveBoardRace; stake: number }) {
   const implied = pct(shown?.shownDecimal ?? null);
   const width = shown?.shownDecimal && shown.shownDecimal > 1 ? Math.min(100, 100 / shown.shownDecimal) : 0;
   return (
@@ -89,7 +93,9 @@ function RaceCard({ race, shown }: { race: LiveRaceSummary; shown?: LiveBoardRac
           <p>
             <span className="block text-[11px] text-[#7c8a8b]">Preço do cartão</span>
             <span className="font-display text-[1.7rem] tabular">{shown?.shownFractional ?? "—"}</span>
-            <span className="block text-[11px] text-[#7c8a8b]">Não é o SP</span>
+            <span className="block text-[11px] text-[#b1d9c3]">
+              {shown?.shownDecimal && stake > 0 ? `Se vencer: +${euros(stake * (shown.shownDecimal - 1))}` : "Sem preço para a conta"}
+            </span>
           </p>
         </div>
         <div className="flex items-center justify-between border-t border-white/8 py-3">
@@ -113,6 +119,7 @@ export function LiveList({ variant }: { variant: "hoje" | "lista" }) {
   const [loading, setLoading] = useState(true);
   const [scope, setScope] = useState<(typeof SCOPES)[number]["id"]>("IEGB");
   const [q, setQ] = useState("");
+  const [stakeText, setStakeText] = useState("10");
 
   function load(first: boolean) {
     if (first) setLoading(true);
@@ -160,6 +167,15 @@ export function LiveList({ variant }: { variant: "hoje" | "lista" }) {
   const heroShown = hero ? prices.get(hero.id) : undefined;
   const courses = new Set(races.map((race) => race.course)).size;
   const heroPct = pct(heroShown?.shownDecimal ?? null);
+  const stake = Number(stakeText.replace(",", "."));
+  const stakeOk = Number.isFinite(stake) && stake > 0;
+  const best = races
+    .filter((race) => race.stage === "DORMANT" || race.stage === "OFF")
+    .map((race) => ({ race, shown: prices.get(race.id) }))
+    .filter((item) => item.shown?.shownName && item.shown.shownDecimal != null)
+    .sort((a, b) => (a.shown?.shownDecimal ?? 99) - (b.shown?.shownDecimal ?? 99))
+    .slice(0, 5);
+  const allIn = stakeOk ? best.reduce((sum, item) => sum + stake * ((item.shown?.shownDecimal ?? 1) - 1), 0) : 0;
 
   return (
     <div>
@@ -181,6 +197,81 @@ export function LiveList({ variant }: { variant: "hoje" | "lista" }) {
           <p className="mt-3 text-[12px] text-[#7c8a8b]" role="status">
             {loading ? "A ler o cartão público…" : error || (day ? `Atualizado às ${dublinClock(new Date(board?.receivedAt ?? day.receivedAt))}.` : "")}
           </p>
+          <section className="mt-5" aria-label="Melhores cavalos do dia">
+            <p className="text-[10px] tracking-[0.16em] text-[#7c8a8b]">PARA APOSTAR HOJE</p>
+            <h2 className="font-display text-[2rem] leading-none tracking-tight">Os melhores do dia</h2>
+            <p className="mt-2 text-[13px] text-[#9aa6a5]">
+              Os 5 preços mais curtos que ainda não largaram. A percentagem é a conta desse preço. Se o cavalo vencer, o lucro é o da linha. Se não vencer, perdes a aposta.
+            </p>
+            <div className="mt-4 flex items-center gap-2">
+              <label className="text-[12px] text-[#9aa6a5]" htmlFor="aposta">
+                Aposta
+              </label>
+              <input
+                id="aposta"
+                inputMode="decimal"
+                value={stakeText}
+                onChange={(event) => setStakeText(event.target.value)}
+                className="h-11 w-24 rounded-md border border-white/10 bg-[#0e1417] px-3 text-right font-display text-2xl tabular outline-none"
+                aria-label="Valor da aposta em euros"
+              />
+              <span className="text-sm text-[#9aa6a5]">€</span>
+              {["10", "20", "50"].map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={stakeText === value ? "h-9 rounded-md bg-[#b5d8c8] px-3 text-[12px] text-[#15271d]" : "h-9 rounded-md border border-white/10 px-3 text-[12px] text-[#9aa6a5]"}
+                  onClick={() => setStakeText(value)}
+                >
+                  {value}
+                </button>
+              ))}
+            </div>
+            {best.length === 0 ? (
+              <p className="mt-4 text-sm text-[#9aa6a5]">{loading ? "A ordenar os preços…" : "Ainda não há preços para ordenar o dia."}</p>
+            ) : (
+              <ol className="mt-4 space-y-3">
+                {best.map((item, index) => {
+                  const decimal = item.shown?.shownDecimal ?? 0;
+                  const chance = pct(decimal);
+                  const profit = stakeOk ? stake * (decimal - 1) : null;
+                  const back = stakeOk ? stake * decimal : null;
+                  return (
+                    <li key={item.race.id}>
+                      <Link to="/ao-vivo/$id" params={{ id: item.race.id }} className="block rounded-xl border border-white/8 bg-[#13191c] px-4 py-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="text-[11px] tracking-[0.14em] text-[#b5d8c8]">
+                            {index + 1}º · {chance}%
+                          </p>
+                          <p className="font-display text-2xl leading-none tabular">{item.race.time ?? "—"}</p>
+                        </div>
+                        <p className="mt-2 font-display text-[1.7rem] leading-tight tracking-tight">{item.shown?.shownName}</p>
+                        <p className="text-[12px] text-[#9aa6a5]">
+                          {item.race.course} · {item.shown?.shownFractional} · {item.shown?.shownJockey ?? "jóquei por indicar"}
+                        </p>
+                        <div className="mt-3 grid grid-cols-2 gap-2">
+                          <p className="rounded-md bg-[#0e1417] px-3 py-2">
+                            <span className="block text-[11px] text-[#7c8a8b]">Recebes se vencer</span>
+                            <span className="font-display text-2xl tabular">{back != null ? euros(back) : "—"}</span>
+                          </p>
+                          <p className="rounded-md bg-[#0e1417] px-3 py-2">
+                            <span className="block text-[11px] text-[#7c8a8b]">Lucro se vencer</span>
+                            <span className="font-display text-2xl text-[#b1d9c3] tabular">{profit != null ? `+${euros(profit)}` : "—"}</span>
+                          </p>
+                        </div>
+                        <p className="mt-2 text-[12px] text-[#dfa2a8]">{stakeOk ? `Se não vencer: −${euros(stake)}` : "Indica um valor de aposta."}</p>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+            {best.length > 0 && stakeOk ? (
+              <p className="mt-4 rounded-xl border border-[#b5d8c8]/20 bg-[#b5d8c8]/8 px-4 py-3 text-[13px]">
+                Se apostares {euros(stake)} em cada um dos {best.length} e todos vencerem, o lucro soma {euros(allIn)}. São {best.length} corridas diferentes. Uma derrota tira essa aposta.
+              </p>
+            ) : null}
+          </section>
           {hero ? (
             <section className="relative mt-5 overflow-hidden rounded-2xl border border-[#b5d8c8]/16 bg-[linear-gradient(115deg,#19261f,#131c19_55%,#131c1c)] px-5 py-6">
               <p className="flex items-center gap-2 text-[10px] tracking-[0.16em] text-[#8caa9b] uppercase">
@@ -281,7 +372,7 @@ export function LiveList({ variant }: { variant: "hoje" | "lista" }) {
       ) : null}
       <ul className="mt-3 space-y-3">
         {(variant === "hoje" ? races.slice(0, 6) : races).map((race) => (
-          <RaceCard key={race.id} race={race} shown={prices.get(race.id)} />
+          <RaceCard key={race.id} race={race} shown={prices.get(race.id)} stake={stakeOk ? stake : 0} />
         ))}
       </ul>
     </div>
